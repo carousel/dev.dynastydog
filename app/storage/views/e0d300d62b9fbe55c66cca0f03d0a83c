@@ -1,0 +1,61 @@
+            <footer class="row">
+                <div class="col-xs-8">
+                    <?php if( ! is_null($currentUser)): ?>
+                        <a href="<?php echo route('auth/logout'); ?>">Logout</a> | 
+                    <?php endif; ?>
+
+                    <a href="<?php echo route('tos'); ?>">Terms of Service</a> | 
+                    <a href="<?php echo route('privacy'); ?>">Privacy Policy</a> | 
+                    <a href="<?php echo route('community_guidelines'); ?>">Community Rules</a> | 
+                    <a href="<?php echo route('staff'); ?>">Contact Staff</a>
+
+                    <?php if( ! is_null($currentUser)): ?>
+                    <span class="hidden-xs hidden-lg">| <a href="<?php echo route('online'); ?>">
+                        <?php echo $totalOnline = User::whereOnline()->count(); ?>
+
+                        <?php echo Str::plural('Player', $totalOnline); ?>
+
+                        Online
+                    </a></span>
+                    <?php endif; ?>
+                    
+                    <span class="hidden-xs hidden-lg">| <?php echo Carbon::now()->format('g:i A'); ?></span>
+                </div>
+                <div class="col-xs-4 text-right">
+                    &copy; Bausman <?php echo ($curYear = Carbon::now()->format('Y')) == 2014 ? $curYear : '2014 - '.$curYear; ?>
+
+                </div>
+            </footer>
+        </div>
+
+        <!-- JS -->
+        <?php $__env->startSection('js_assets'); ?>
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/themes/cloud_admin/js/bootstrap.min.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/themes/cloud_admin/js/sparkline.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/themes/cloud_admin/js/tiny-scrollbar.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/bgrins-spectrum/spectrum.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/bootstrap-growl/jquery.bootstrap-growl.min.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/bootstrap-progressbar/bootstrap-progressbar.min.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/bootstrap-slider/js/bootstrap-slider.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/momentjs/js/moment.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js'); ?>"></script>
+            <script type="text/javascript" src="<?php echo asset('assets/js/site.js'); ?>?2015010902"></script>
+        <?php echo $__env->yieldSection(); ?>
+
+        <!-- Growl Notifications -->
+        <?php echo $__env->make('frontend/notifications/growl', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+        <!-- Modals -->
+        <?php $__env->startSection('modals'); ?>
+            <!-- Chat Turns Modal -->
+            <?php echo $__env->make('frontend/modals/chat_turns', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+            
+            <!-- Advanced Turn Modal -->
+            <?php echo $__env->make('frontend/modals/advanced_turn', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+            <!-- Tutorial Modal -->
+            <?php echo $__env->make('frontend/modals/tutorial', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+        <?php echo $__env->yieldSection(); ?>
+    </body>
+</html>

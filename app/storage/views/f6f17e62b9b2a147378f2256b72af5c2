@@ -1,0 +1,43 @@
+<div class="row">
+    <div class="col-md-12 no-padding">
+        <header class="navbar" role="navigation">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand hidden-lg hidden-md hidden-sm" href="<?php echo route('home'); ?>"><?php echo Config::get('game.name'); ?></a>
+            </div>
+            <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+                <ul class="nav navbar-nav">
+                	<?php if(is_null($currentUser)): ?>
+                    <li><a href="<?php echo route('home'); ?>">Home</a></li>
+                    <?php endif; ?>
+
+                    <li><a href="<?php echo route('user/kennel'); ?>">Kennel</a></li>
+                    <li><a href="<?php echo route('goals'); ?>">Goals</a></li>
+                    <li><a href="<?php echo route('imports'); ?>">Import Dogs</a></li>
+                    <li><a href="<?php echo route('contests'); ?>">Contests</a></li>
+                    <li><a href="<?php echo route('forums'); ?>">Forums</a></li>
+                    <li><a href="<?php echo route('breed_registry'); ?>">Breed Registry</a></li>
+                    <li><a href="<?php echo route('cash_shop'); ?>">Cash Shop</a></li>
+                    <li><a href="<?php echo route('news'); ?>">News</a></li>
+                    <li><a href="<?php echo route('help'); ?>">Help</a></li>
+                    <li class="navbar-text navbar-right hidden-sm hidden-md"><?php echo Carbon::now()->format('g:i A'); ?></li>
+                    <?php if( ! is_null($currentUser)): ?>
+                    <li class="navbar-right hidden-sm hidden-md">
+                        <a href="<?php echo route('online'); ?>">
+                            <span class="badge"><?php echo $totalOnline = User::whereOnline()->count(); ?></span>
+                            <?php echo Str::plural('Player', $totalOnline); ?>
+
+                            Online
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+        </header>
+    </div>
+</div>

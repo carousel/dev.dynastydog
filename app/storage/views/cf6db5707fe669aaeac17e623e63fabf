@@ -1,0 +1,65 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<?php echo $__env->make('frontend/forums/_navigation', ['newTopicForum' => null], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="page-header">
+    <h1>Forums</h1>
+</div>
+
+<table class="table table-striped">
+    <tbody>
+        <?php foreach($forums as $forum): ?>
+        <tr>
+            <td>
+                <h4><a href="<?php echo route('forums/forum', $forum->id); ?>"><?php echo e($forum->title); ?></a></h4>
+                <p><i><?php echo e($forum->description); ?></i></p>
+            </td>
+            <td style="vertical-align: middle;">
+                <?php if( ! is_null($lastTopic = $forum->lastTopic())): ?>
+                    <a href="<?php echo route('forums/topic', $lastTopic->id); ?>"><?php echo e($lastTopic->title); ?></a> by 
+                    
+                    <?php if( ! is_null($lastPost = $lastTopic->lastPost()) and ! is_null($lastPost->author)): ?>
+                    <a href="<?php echo route('user/profile', $lastPost->author->id); ?>">
+                        <?php if($lastPost->author->isAdministrator()): ?>
+                        <span class="text-success"><?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)</span>
+                        <?php else: ?>
+                        <?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)
+                        <?php endif; ?>
+                    </a>
+                    <?php elseif( ! is_null($lastTopic->author)): ?>
+                    <a href="<?php echo route('user/profile', $lastTopic->author->id); ?>">
+                        <?php if($lastTopic->author->isAdministrator()): ?>
+                        <span class="text-success"><?php echo e($lastTopic->author->display_name); ?> (#<?php echo $lastTopic->author->id; ?>)</span>
+                        <?php else: ?>
+                        <?php echo e($lastTopic->author->display_name); ?> (#<?php echo $lastTopic->author->id; ?>)
+                        <?php endif; ?>
+                    </a>
+                    <?php else: ?>
+                    <em>Deleted</em>
+                    <?php endif; ?>
+
+                    <br />
+
+                    on <?php echo $lastTopic->last_activity_at->format('F jS, Y g:i A'); ?>
+
+                <?php else: ?>
+                No Recent Activity
+                <?php endif; ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if( ! count($forums)): ?>
+        <tr>
+            <td>No forums to display</td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

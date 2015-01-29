@@ -1,0 +1,138 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <div class="text-right pull-right">
+        <a href="<?php echo route('breed_registry/draft/submitted', $breedDraft->id); ?>" class="btn btn-primary">Back to Entry</a>
+    </div>
+
+    <h1>Viewing Characteristic: <?php echo $characteristic->name; ?></h1>
+</div>
+
+<h2>Results</h2>
+
+<?php if($characteristic->isGenetic()): ?>
+    <?php if($characteristic->hasPhenotypes()): ?>
+    <div class="row">
+        <div class="col-xs-2 text-right">
+            <strong>Phenotypes</strong>
+        </div>
+        <div class="col-xs-10">
+            <ul>
+                <?php foreach($resultingPhenotypes as $phenotype): ?>
+                <li><?php echo $phenotype->name; ?></li>
+                <?php endforeach; ?>
+            
+                <?php if($resultingPhenotypes->isEmpty()): ?>
+                <li><em>None</em></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if( ! $characteristic->hideGenotypes()): ?>
+    <div class="row">
+        <div class="col-xs-2 text-right">
+            <strong>Genotypes</strong>
+        </div>
+        <div class="col-xs-10">
+            <ul>
+                <?php foreach($resultingLoci as $locus): ?>
+                <li>
+                    <strong><?php echo $locus->name; ?>:</strong>
+                    <?php foreach($locus->genotypes as $genotype): ?>
+                    <?php echo $genotype->toSymbol(); ?>
+
+                    <?php endforeach; ?>
+
+                    <?php if($locus->genotypes->isEmpty()): ?>
+                    <em>None</em>
+                    <?php endif; ?>
+                </li>
+                <?php endforeach; ?>
+            
+                <?php if($resultingLoci->isEmpty()): ?>
+                <li><em>None</em></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <?php endif; ?>
+<?php endif; ?>
+
+<?php if($characteristic->isRanged()): ?>
+<div class="row">
+    <div class="col-xs-2 text-right">
+        <strong>Range</strong>
+    </div>
+    <div class="col-xs-10">
+        <ul>
+            <?php if(Floats::compare($breedDraftCharacteristic->min_female_ranged_value, $breedDraftCharacteristic->min_male_ranged_value, '=') and Floats::compare($breedDraftCharacteristic->max_female_ranged_value, $breedDraftCharacteristic->max_male_ranged_value, '=')): ?>
+                <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                    ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                    ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                    ->orderBy('min_ranged_value', 'asc')
+                    ->orderBy('max_ranged_value', 'asc')
+                    ->get()
+                ) as $label): ?>
+                <li><?php echo $label->name; ?></li>
+                <?php endforeach; ?>
+
+                <?php if($labels->isEmpty()): ?>
+                <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                <?php endif; ?>
+            <?php else: ?>
+                <li>
+                    Bitches
+                    <ul>
+                        <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                            ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                            ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                            ->orderBy('min_ranged_value', 'asc')
+                            ->orderBy('max_ranged_value', 'asc')
+                            ->get()
+                        ) as $label): ?>
+                        <li><?php echo $label->name; ?></li>
+                        <?php endforeach; ?>
+
+                        <?php if($labels->isEmpty()): ?>
+                        <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+                <li>
+                    Dogs
+                    <ul>
+                        <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                            ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_male_ranged_value)
+                            ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_male_ranged_value)
+                            ->orderBy('min_ranged_value', 'asc')
+                            ->orderBy('max_ranged_value', 'asc')
+                            ->get()
+                        ) as $label): ?>
+                        <li><?php echo $label->name; ?></li>
+                        <?php endforeach; ?>
+
+                        <?php if($labels->isEmpty()): ?>
+                        <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_male_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_male_ranged_value, false); ?></li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php /* JS assets */ ?>
+<?php $__env->startSection('js_assets'); ?>
+@parent
+<script type="text/javascript" src="<?php echo asset('assets/js/breed_registry.js'); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

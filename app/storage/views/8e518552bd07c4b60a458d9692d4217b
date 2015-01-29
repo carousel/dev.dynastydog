@@ -1,0 +1,15 @@
+
+
+<?php $__env->startSection('content'); ?>
+<p>Hello <?php echo $user->display_name; ?>,</p>
+
+<p>Welcome to <?php echo Config::get('game.name'); ?>! Please click on the following link to confirm your <?php echo Config::get('game.name'); ?> account:</p>
+
+<p><a href="<?php echo route('auth/activate', ['email' => $user->email, 'code' => $activationCode]); ?>"><?php echo route('auth/activate', ['email' => $user->email, 'code' => $activationCode]); ?></a></p>
+
+<p>Best regards,</p>
+
+<p><?php echo Config::get('game.name'); ?> Team</p>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('emails/layouts/default', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

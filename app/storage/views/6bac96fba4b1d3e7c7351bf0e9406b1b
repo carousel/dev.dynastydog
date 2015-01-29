@@ -1,0 +1,154 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Manage Breeds</h1>
+</div>
+
+<h2>Add Characteristics</h2>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/manage/add_characteristics'); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="breedBreedId" class="col-sm-2 control-label">Breeds</label>
+        <div class="col-sm-10">
+            <select name="breeds[]" class="form-control" id="breedBreedId" size="8" multiple required>
+                <?php foreach($breeds as $breed): ?>
+                <option value="<?php echo $breed->id; ?>" <?php echo in_array($breed->id, (array)Input::old('breeds')) ? 'selected' : ''; ?>><?php echo $breed->name; ?></option>
+                <?php endforeach; ?>
+
+                <?php if($breeds->isEmpty()): ?>
+                <option value="">No breeds available</option>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="breedCharacteristicId" class="col-sm-2 control-label">Characteristic</label>
+        <div class="col-sm-10">
+            <select name="characteristics[]" class="form-control" id="breedCharacteristicId" size="8" multiple required>
+                <?php foreach($characteristicCategories as $category): ?>
+                <optgroup label="<?php echo $category->parent->name; ?>: <?php echo $category->name; ?>">
+                    <?php foreach($category->characteristics as $characteristic): ?>
+                    <option value="<?php echo $characteristic->id; ?>" <?php echo in_array($characteristic->id, (array)Input::old('characteristics')) ? 'selected' : ''; ?>><?php echo $characteristic->name; ?></option>
+                    <?php endforeach; ?>
+                </optgroup>
+                <?php endforeach; ?>
+
+                <?php if($characteristicCategories->isEmpty()): ?>
+                <option value="">No characteritics available</option>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="breedCharacteristicActive" class="col-sm-4 control-label">Active?</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label for="breedCharacteristicActive">
+                            <input type="checkbox" name="active_characteristic" value="yes" id="breedCharacteristicActive" <?php echo (Input::old('active_characteristic') == 'yes') ? 'checked' : ''; ?>/> Yes
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="breedCharacteristicHide" class="col-sm-4 control-label">Hide?</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label for="breedCharacteristicHide">
+                            <input type="checkbox" name="hide_characteristic" value="yes" id="breedCharacteristicHide" <?php echo (Input::old('hide_characteristic') == 'yes') ? 'checked' : ''; ?>/> Yes
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <button type="submit" name="add_characteristics_to_breeds" value="add_characteristics_to_breeds" class="btn btn-primary">Add Characteristics</button>
+        </div>
+    </div>
+</form>
+
+<h2>Update Genotypes</h2>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/manage/add_genotypes'); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="breedBreedId" class="col-sm-2 control-label">Breeds</label>
+        <div class="col-sm-10">
+            <select name="breeds[]" class="form-control" id="breedBreedId" size="8" multiple required>
+                <?php foreach($breeds as $breed): ?>
+                <option value="<?php echo $breed->id; ?>" <?php echo in_array($breed->id, (array)Input::old('breeds')) ? 'selected' : ''; ?>><?php echo $breed->name; ?></option>
+                <?php endforeach; ?>
+
+                <?php if($breeds->isEmpty()): ?>
+                <option value="">No breeds available</option>
+                <?php endif; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <?php foreach($loci as $locus): ?>
+        <div class="form-group col-sm-6">
+            <div class="container-fluid">
+                <div class="row">
+                    <label for="breedGenotypes<?php echo $locus->id; ?>" class="col-sm-4 control-label">
+                        <?php echo $locus->name; ?>
+
+                    </label>
+
+                    <div class="col-sm-8">
+                        <div class="row">
+                            <?php foreach($locus->genotypes as $genotype): ?>
+                            <div class="col-sm-4">
+                                <p class="form-control-static">
+                                    <a href="<?php echo route('admin/genetics/genotype/edit', $genotype->id); ?>"><?php echo $genotype->toSymbol(); ?></a>
+                                </p>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon" title="Frequency"><i class="fa fa-bar-chart-o"></i></span>
+                                    <input type="text" name="genotypes[<?php echo $genotype->id; ?>][frequency]" class="form-control" id="breedGenotypeFrequency<?php echo $genotype->id; ?>" value="0" maxlength="3">
+                                    <span class="input-group-addon" title="Ignore">
+                                        <small>
+                                            <input type="checkbox" name="genotypes[<?php echo $genotype->id; ?>][ignore]" value="yes" id="cp-breeds-breed-manage-genotypes-ignore-<?php echo $genotype->id; ?>" checked>
+                                            <strong>Ignore</strong>
+                                        </small>
+                                    </span>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <button type="submit" name="add_genotypes_to_breeds" value="add_genotypes_to_breeds" class="btn btn-primary">Update Genotypes</button>
+        </div>
+    </div>
+</form>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

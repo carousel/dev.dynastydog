@@ -1,0 +1,1 @@
+<p class="well well-sm text-center">Every time you gift an upgrade, you earn <?php echo Dynasty::credits(Config::get('game.user.gift_upgrade_bonus')); ?> towards future upgrades for yourself!</p>

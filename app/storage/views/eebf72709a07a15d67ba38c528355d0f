@@ -1,0 +1,75 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Edit Alpha Code</h1>
+</div>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/alpha/code/edit', $alphaCode->code); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-alphacode-title" class="col-sm-2 control-label">Code</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+                <?php echo $alphaCode->code; ?>
+
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-alphacode-capacity" class="col-sm-2 control-label">Capacity</label>
+        <div class="col-sm-10">
+            <input type="number" name="capacity" class="form-control" id="cp-alphacode-capacity" value="<?php echo e(Input::old('capacity', $alphaCode->capacity)); ?>" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-alphacode-title" class="col-sm-2 control-label">Population</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+                <?php echo $alphaCode->population; ?>
+
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <a href="<?php echo route('admin/alpha/code/delete', $alphaCode->code); ?>" name="delete_alpha_code" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this alpha code?');">Delete</a>
+            <button type="submit" name="edit_alpha_code" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>
+
+<h2>Users</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Display Name</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($users as $user): ?>
+        <tr>
+            <td><a href="<?php echo route('user/profile', $user->id); ?>"><?php echo $user->id; ?></a></td>
+            <td><a href="<?php echo route('user/profile', $user->id); ?>"><?php echo e($user->display_name); ?></a></td>
+            <td><?php echo $user->created_at->format('F j, Y g:i A'); ?></td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if($users->isEmpty()): ?>
+        <tr>
+            <td colspan="5">No users to display</td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

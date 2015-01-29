@@ -1,0 +1,40 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="panel panel-default">
+    <div class="panel-heading panel-nav clearfix">
+        <ul class="nav nav-pills">
+            <li <?php echo (Input::get('tab', 'individual') == 'individual') ? 'class="active"' : ''; ?>><a href="#individual" data-toggle="tab">Individual Challenges</a></li>
+            <li <?php echo (Input::get('tab') == 'community') ? 'class="active"' : ''; ?>><a href="#community" data-toggle="tab">Community Challenges</a></li>
+            <li <?php echo (Input::get('tab') == 'personal') ? 'class="active"' : ''; ?>><a href="#personal" data-toggle="tab">Personal Goals</a></li>
+        </ul>
+    </div>
+
+    <!-- Tab panes -->
+    <div class="tab-content panel-body">
+        <div class="tab-pane <?php echo (Input::get('tab', 'individual') == 'individual') ? 'active' : ''; ?>" id="individual">
+            <?php echo $__env->make('frontend/goals/individualchallenges', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+        </div>
+
+        <div class="tab-pane <?php echo (Input::get('tab') == 'community') ? 'active' : ''; ?>" id="community">
+            <?php echo $__env->make('frontend/goals/communitychallenges', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+        </div>
+
+        <div class="tab-pane <?php echo (Input::get('tab') == 'personal') ? 'active' : ''; ?>" id="personal">
+            <?php echo $__env->make('frontend/goals/personalgoals', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+        </div>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php /* JS assets */ ?>
+<?php $__env->startSection('js_assets'); ?>
+@parent
+<script type="text/javascript" src="<?php echo asset('assets/js/goals.js'); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,60 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Claim Your Prizes</h1>
+</div>
+
+<p class="text-center">Congratulations! When you win a Community Challenge you can choose one of two prizes - <?php echo Dynasty::credits($creditPrize); ?> added to your account, or access to the Breeder's Prize for 30 days. The Breeder's Prize is the ability to view dogs' pedigrees to 10 generations instead of the usual 4</p>
+
+<?php foreach($communityChallenges as $communityChallenge): ?>
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h3 class="panel-title">
+            Community Challenge #<?php echo $communityChallenge->id; ?>
+
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label>Winners:</label>
+            <p class="form-control-static">
+                <ul class="list-unstyled">
+                    <?php foreach($communityChallenge->entries as $entry): ?>
+                    <li><?php echo $entry->dog->linkedNameplate(); ?> with <?php echo number_format($entry->num_breeders); ?> <?php echo Str::plural('breeder', number_format($entry->num_breeders)); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-5">
+                <a href="<?php echo route('goals/community/claim/breeders', $communityChallenge->id); ?>" class="btn btn-success btn-block">
+                    <i class="fa fa-check-square-o"></i>
+                    Claim Breeder's Prize
+                </a>
+            </div>
+            <div class="col-md-2 text-center">
+                <p class="btn btn-link disabled"><strong>OR</strong></p>
+            </div>
+            <div class="col-md-5">
+                <a href="<?php echo route('goals/community/claim/credits', $communityChallenge->id); ?>" class="btn btn-success btn-block">
+                    <i class="fa fa-check-square-o"></i>
+                    Claim <?php echo Dynasty::credits($creditPrize); ?>
+
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endforeach; ?>
+
+<?php if($communityChallenges->isEmpty()): ?>
+<p class="well text-center">You do not have any unclaimed Community Challenge prizes.</p>
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

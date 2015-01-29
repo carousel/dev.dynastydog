@@ -1,0 +1,52 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Who's Online?</h1>
+</div>
+
+<table class="table table-striped table-responsive">
+    <thead>
+        <tr>
+            <th class="text-center">Player</th>
+            <th class="col-xs-4 text-center">Last Action</th>
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+                <th class="col-xs-4 text-center">Last Page</th>
+            <?php endif; ?>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach(User::whereOnline()->orderBy('last_action_at', 'desc')->orderBy('id', 'asc')->get() as $user): ?>
+            <tr>
+                <td class="text-center">
+                    <a href="<?php echo route('user/profile', $user->id); ?>">
+                        <?php if($user->hasAvatar()): ?>
+                            <img src="<?php echo e($user->avatar); ?>" class="img-responsive center-block" alt="[avatar]" title="User Avatar" /><br />
+                        <?php endif; ?>
+
+                        <?php if($user->isAdministrator()): ?>
+                            <span class="text-success"><strong><?php echo e($user->display_name); ?> (#<?php echo $user->id; ?>)</strong></span>
+                        <?php else: ?>
+                            <?php echo $user->isUpgraded() ? '<strong>' : ''; ?>
+
+                            <?php echo e($user->display_name); ?> (#<?php echo $user->id; ?>)
+                            <?php echo $user->isUpgraded() ? '</strong>' : ''; ?>
+
+                        <?php endif; ?>
+                    </a>
+                </td>
+                <td class="text-center">
+                    <?php echo $user->last_action_at->diffForHumans(); ?>
+
+                </td>
+                <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+                    <td class="breakable text-center"><?php echo e($user->last_uri); ?></td>
+                <?php endif; ?>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

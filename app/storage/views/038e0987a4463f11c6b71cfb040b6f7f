@@ -1,0 +1,66 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Request some Beginner's Luck</h1>
+</div>
+
+<div class="well well-sm">
+    <div class="row">
+        <div class="col-md-5 text-center">
+            <?php echo $dog->linkedNameplate(); ?>
+
+        </div>
+        <div class="col-md-2 text-center">
+            <strong>x</strong>
+        </div>
+        <div class="col-md-5 text-center">
+            <?php echo $bitch->linkedNameplate(); ?>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <?php foreach($onlineBeginners as $user): ?>
+    <div class="col-xs-6 col-sm-4 col-md-3">
+        <div class="well well-small text-center">
+            <a href="<?php echo route('user/profile', $user->id); ?>">
+                <?php if($user->isAdministrator()): ?>
+                <strong><?php echo e($user->nameplate()); ?></strong>
+                <?php else: ?>
+                <?php echo e($user->nameplate()); ?>
+
+                <?php endif; ?>
+            </a>
+            <br />
+
+            <?php echo $user->last_action_at->diffForHumans(); ?>
+
+
+            <?php if($user->hasAvatar()): ?>
+            <br />
+            <img src="<?php echo e($user->avatar); ?>" class="img-responsive center-block" alt="[avatar]" title="User Avatar" />
+            <?php endif; ?>
+
+            <a class="btn btn-success btn-xs btn-block wrap" href="<?php echo route('dog/blr/request', [$dog->id, $bitch->id, $user->id]); ?>">
+                Request Beginner’s Luck
+            </a>
+        </div>
+    </div>
+    <?php endforeach; ?>
+
+    <?php if($onlineBeginners->isEmpty()): ?>
+    <div class="well well-small text-center">No online newbies to display.</div>
+    <?php endif; ?>
+</div>
+
+<p class="text-center">
+    <a class="btn btn-primary btn-lg" href="<?php echo route('dog/breed', [$dog->id, $bitch->id]); ?>">Breed Dogs without Beginner's Luck</a>
+</p>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

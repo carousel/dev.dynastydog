@@ -1,0 +1,66 @@
+
+
+<?php /* Breadcrumbs */ ?>
+<?php echo Breadcrumbs::setCurrentRoute('help'); ?>
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+	<h1>Help</h1>
+</div>
+
+<h2>All Categories</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+            <th></th>
+            <?php endif; ?>
+        </tr>
+    </thead>
+    <tbody>
+    	<?php foreach($categories as $category): ?>
+        <tr>
+            <td><a href="<?php echo route('help/category', $category->id); ?>"><?php echo e($category->title); ?></a></td>
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+            <td class="text-right">
+                <a href="<?php echo route('admin/help/help/category/edit', $category->id); ?>" class="btn btn-primary btn-xs">Edit</a>
+            </td>
+            <?php endif; ?>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<h2>All Pages</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Page</th>
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+            <th></th>
+            <?php endif; ?>
+        </tr>
+    </thead>
+    <tbody>
+    	<?php foreach($pages as $page): ?>
+        <tr>
+            <td><a href="<?php echo route('help/page', $page->id); ?>"><?php echo e($page->title); ?></a></td>
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+            <td class="text-right">
+                <a href="<?php echo route('admin/help/help/page/edit', $page->id); ?>" class="btn btn-primary btn-xs">Edit</a>
+            </td>
+            <?php endif; ?>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

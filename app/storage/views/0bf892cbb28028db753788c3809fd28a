@@ -1,0 +1,22 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>News</h1>
+</div>
+
+<?php echo $newsPosts->links(); ?>
+
+
+<?php foreach($newsPosts as $newsPost): ?>
+<?php echo $__env->make('frontend/news/_post', ['newsPost' => $newsPost, 'lead' => true], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php endforeach; ?>
+
+<?php echo $newsPosts->links(); ?>
+
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

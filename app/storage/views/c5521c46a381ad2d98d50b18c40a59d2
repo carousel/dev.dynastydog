@@ -1,0 +1,15 @@
+<?php if( ! $growlNotifications->isEmpty()): ?>
+  <script type="text/javascript">
+    <?php foreach($growlNotifications as $growlNotification): ?>
+      $.bootstrapGrowl(<?php echo json_encode($growlNotification->body); ?>, {
+        type: "<?php echo e($growlNotification->type); ?> hidden-xs",
+        <?php if($growlNotification->isPersistent()): ?>
+        delay: 0,
+        allow_dismiss: false, 
+        <?php else: ?>
+        delay: 10000,
+        <?php endif; ?>
+      });
+    <?php endforeach; ?>
+  </script>
+<?php endif; ?>

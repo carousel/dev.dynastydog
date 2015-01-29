@@ -1,0 +1,102 @@
+footer a:not(.btn), footer a:not(.btn):visited {
+  color: #CC8DFF;
+}
+
+footer a:not(.btn):hover, footer a:not(.btn):active {
+  color: #A83EFF;
+}
+
+header {
+    background-color: #BAAAC4;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#D7CDDE), to(#BAAAC4));
+    background-image: -webkit-linear-gradient(top, #D7CDDE, #BAAAC4);
+    background-image: -moz-linear-gradient(top, #D7CDDE, #BAAAC4);
+    background-image: -ms-linear-gradient(top, #D7CDDE, #BAAAC4);
+    background-image: -o-linear-gradient(top, #D7CDDE, #BAAAC4);
+    background-image: linear-gradient(top, #D7CDDE, #BAAAC4);
+}
+
+.panel-sub-heading {
+  background-color: #EFF7FA;
+}
+
+.panel-default, 
+.panel-green {
+    border-color: #DACEDF;
+}
+
+.panel-default > .panel-heading, 
+.panel-green > .panel-heading {
+    color: #ffffff;
+    border-color: #DACEDF;
+    background-color: #67109A;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#55119E), to(#67109A));
+    background-image: -webkit-linear-gradient(top, #55119E, #67109A);
+    background-image: -moz-linear-gradient(top, #55119E, #67109A);
+    background-image: -ms-linear-gradient(top, #55119E, #67109A);
+    background-image: -o-linear-gradient(top, #55119E, #67109A);
+    background-image: linear-gradient(top, #55119E, #67109A);
+}
+
+.panel-grey > .panel-heading {
+    background: #E8E6EB;
+}
+
+.panel-default > .panel-footer {
+    background-color: #67109A;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#55119E), to(#67109A));
+    background-image: -webkit-linear-gradient(top, #55119E, #67109A);
+    background-image: -moz-linear-gradient(top, #55119E, #67109A);
+    background-image: -ms-linear-gradient(top, #55119E, #67109A);
+    background-image: -o-linear-gradient(top, #55119E, #67109A);
+    background-image: linear-gradient(top, #55119E, #67109A);
+}
+
+
+.panel-nav > .nav-pills > li > a:hover, 
+.panel-nav > .nav-pills > li.active > a, 
+.panel-nav > .nav-pills > li > form .btn-link:hover, 
+.panel-nav > .nav-pills > li.active > form .btn-link {
+    background-color: #330E7F;
+}
+
+#masthead-wrapper:not(.in) .masthead {
+    background: #67109A;
+}
+
+.main {
+    background-color: #DBD1E1;
+}
+
+footer {
+    color: #000000;
+    background-color: #67109A;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#55119E), to(#67109A));
+    background-image: -webkit-linear-gradient(top, #55119E, #67109A);
+    background-image: -moz-linear-gradient(top, #55119E, #67109A);
+    background-image: -ms-linear-gradient(top, #55119E, #67109A);
+    background-image: -o-linear-gradient(top, #55119E, #67109A);
+    background-image: linear-gradient(top, #55119E, #67109A);
+}
+
+.navbar {
+    border: 1px solid #BAAAC4;
+}
+
+
+.navbar-collapse.collapsing, 
+.navbar-collapse.in {
+    background: #F9F9F9;
+}
+
+.navbar-toggle {
+    background: #67109A;
+}
+
+.kennel-show-sidebar-bar {
+  background-color: #67109A;
+}
+
+.kennel-show-sidebar-bar:hover {
+  background-color: #330E7F;
+}

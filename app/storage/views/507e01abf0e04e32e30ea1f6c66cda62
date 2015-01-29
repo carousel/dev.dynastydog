@@ -1,0 +1,74 @@
+<div id="characteristic-profiles-<?php echo $characteristic->id; ?>" class="characteristic-profile">
+    <div class="form-group clearfix">
+        <label class="col-sm-2 control-label text-right">Specify:</label>
+        <div class="col-sm-10">
+            <?php if($characteristic->isGenetic()): ?>
+                <?php if(($phenotypes = $characteristic->queryPhenotypes()->orderBy('name', 'asc')->get()) and ! $phenotypes->isEmpty()): ?>
+                <div id="phenotypes-<?php echo $characteristic->id; ?>">
+                    <select name="ch[<?php echo $counter; ?>][ph][]" class="form-control input-xs" size="2" multiple>
+                        <?php foreach($phenotypes as $phenotype): ?>
+                        <option value="<?php echo $phenotype->id; ?>" <?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['ph']) and in_array($phenotype->id, $searchedCharacteristic['ph'])) ? 'selected' : ''; ?>>
+                            <?php echo $phenotype->name; ?>
+
+                        </option>
+                        <?php endforeach; ?>
+                    </select><br />
+                </div>
+                <?php endif; ?>
+
+                <?php if( ! $characteristic->hideGenotypes() and count($loci = $characteristic->loci()->with(array('genotypes' => function($query){ $query->orderByAlleles(); }))->whereActive()->orderBy('name', 'asc')->get()) > 0): ?>
+                <div class="row" id="genotypes-<?php echo $characteristic->id; ?>">
+                    <?php foreach($loci as $locus): ?>
+                    <div class="col-xs-4 text-center">
+                        <strong><?php echo $locus->name; ?></strong>
+                        <select name="ch[<?php echo $counter; ?>][g][<?php echo $locus->id; ?>][]" class="form-control input-xs" size="2" multiple>
+                            <?php foreach($locus->genotypes as $genotype): ?>
+                            <option value="<?php echo $genotype->id; ?>" <?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['g']) and in_array($genotype->id, array_flatten((array) $searchedCharacteristic['g']))) ? 'selected' : ''; ?>>
+                                <?php echo $genotype->toSymbol(); ?>
+
+                            </option>
+                            <?php endforeach; ?>
+                        </select><br />
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php if($characteristic->isRanged()): ?>
+            <div id="characteristics-<?php echo $counter; ?>-range-<?php echo $characteristic->id; ?>">
+                <p class="form-control-static">
+                    
+                    <div class="slider-<?php echo $counter; ?>">
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_lower_boundary_label; ?>">
+                            <i class="fa fa-step-backward"></i>
+                        </a> 
+
+                        <input name="ch[<?php echo $counter; ?>][r]" id="slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>" type="text" value="<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r'])) ? $searchedCharacteristic['r'] : $characteristic->min_ranged_value.','.$characteristic->max_ranged_value; ?>" data-slider-min="<?php echo round($characteristic->min_ranged_value); ?>" data-slider-max="<?php echo round($characteristic->max_ranged_value); ?>"/>
+
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_upper_boundary_label; ?>">
+                            <i class="fa fa-step-forward"></i>
+                        </a>
+                   </div>
+                    <script type="text/javascript">
+                    $(document).ready(function(){
+                        var range = $("#slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>");
+
+                        if ( ! range.parent().hasClass('slider')) {
+                            range.slider({
+                                step:1,
+                                value:[<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r'])) ? $searchedCharacteristic['r'] : $characteristic->min_ranged_value.','.$characteristic->max_ranged_value; ?>],
+                                formater:function(value){
+                                    <?php echo $characteristic->jsFormatRangedSlider(); ?>
+
+                                }
+                            });
+                        }
+                    });
+                    </script>
+                </p>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+        <!-- Breadcrumbs -->
+        <?php echo Breadcrumbs::renderIfExists(); ?>
+
+
+        <div class="hidden-sm hidden-xs">
+            <!-- Notifications -->
+            <?php echo $__env->make('frontend/notifications/basic', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+            <?php if( ! is_null($currentUser)): ?>
+                <?php if($currentUser->inTutorial()): ?>
+                <p class="clearfix">
+                    <button class="btn btn-danger pull-right" data-toggle="modal" data-target="#tutorial-current-stage">
+                        View Current Tutorial Step
+                    </button>
+                </p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- Content -->
+        <?php echo $__env->yieldContent('content'); ?>
+
+    </div>
+</div>

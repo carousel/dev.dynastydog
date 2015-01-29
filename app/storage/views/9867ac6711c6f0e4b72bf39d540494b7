@@ -1,0 +1,39 @@
+<?php echo $__env->make('admin/layouts/_header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="main row">
+    <?php if( ! empty($sidebarGroups)): ?>
+    <div class="sidebar col-xs-3">
+        <div class="panel panel-default">
+            <?php foreach($sidebarGroups as $sidebarGroup): ?>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <h4 class="list-group-item-heading"><?php echo $sidebarGroup['heading']; ?></h4>
+                </li>
+                <?php foreach($sidebarGroup['items'] as $sidebarGroupItem): ?>
+                <a href="<?php echo $sidebarGroupItem['url']; ?>" class="list-group-item"><?php echo $sidebarGroupItem['title']; ?></a>
+                <?php endforeach; ?>
+            </ul>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="content col-xs-9">
+    <?php else: ?>
+    <div class="content col-xs-12">
+    <?php endif; ?>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <!-- Breadcrumbs -->
+                <?php echo Breadcrumbs::renderIfExists(); ?>
+
+
+                <!-- Notifications -->
+                <?php echo $__env->make('frontend/notifications/basic', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+                <!-- Content -->
+                <?php echo $__env->yieldContent('content'); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php echo $__env->make('admin/layouts/_footer', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

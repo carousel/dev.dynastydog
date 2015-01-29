@@ -1,0 +1,203 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Search Forums</h1>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h3 class="panel-title">
+            <big>Options</big>
+        </h3>
+    </div>
+
+    <div class="panel-body">
+        <form method="get" action="<?php echo route('search/forums'); ?>" class="form-horizontal">
+            <div class="form-group">
+                <label for="searchTerms" class="col-sm-2 control-label">Search Terms</label>
+                <div class="col-sm-10">
+                    <input type="text" name="terms" class="form-control" id="searchTerms" value="<?php echo e(Input::get('terms')); ?>" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="forums" class="col-sm-4 control-label">Forums</label>
+                        <div class="col-sm-8">
+                            <select name="forums[]" class="form-control" id="forums" multiple>
+                                <?php foreach($forums as $forum): ?>
+                                <option value="<?php echo $forum->id; ?>" <?php echo in_array($forum->id, Input::get('forums', [])) ? 'selected' : ''; ?>>
+                                    <?php echo $forum->title; ?>
+
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label for="typeTopics" class="col-sm-4 control-label">Type</label>
+                        <div class="col-sm-8">
+                            <label class="checkbox-inline">
+                                <input type="radio" name="type" id="typeTopics" value="topics" <?php echo Input::get('type', 'topics') == 'topics' ? 'checked' : ''; ?> /> 
+                                Topics
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="type" id="typePosts" value="posts" <?php echo Input::get('type', 'topics') == 'posts' ? 'checked' : ''; ?> /> 
+                                Posts
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="authorId" class="col-sm-4 control-label">Author ID</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">#</span>
+                                <input type="text" name="author" class="form-control" id="authorId" value="<?php echo e(Input::old('author')); ?>" placeholder="Player ID" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2 text-right">
+                    <button type="submit" name="search" value="forums" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php if( ! is_null($results)): ?>
+<?php if(Input::get('type') === 'topics'): ?>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Topic</th>
+            <th>Forum</th>
+            <th colspan="2">Latest Activity</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($results as $topic): ?>
+        <tr>
+            <td>
+                <strong><a href="<?php echo route('forums/topic', $topic->id); ?>"><?php echo e($topic->title); ?></a></strong>
+                <br />
+                By 
+                <?php if( ! is_null($topic->author)): ?>
+                <?php if($topic->author->isAdministrator()): ?>
+                <span class="text-success"><?php echo e($topic->author->display_name); ?> (#<?php echo $topic->author->id; ?>)</span>
+                <?php else: ?>
+                <?php echo e($topic->author->display_name); ?> (#<?php echo $topic->author->id; ?>)
+                <?php endif; ?>
+                <?php else: ?>
+                <em>Deleted</em>
+                <?php endif; ?>
+                on <?php echo $topic->created_at->format('F jS, Y g:i A'); ?>
+
+            </td>
+            <td>
+                <?php if( ! is_null($topic->forum)): ?>
+                <a href="<?php echo route('forums/forum', $topic->forum->id); ?>"><?php echo $topic->forum->title; ?></a>
+                <?php else: ?>
+                <em>Unknown</em>
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php if( ! is_null($lastPost = $topic->lastPost())): ?>
+                <?php echo $lastPost->created_at->format('F jS, Y g:i A'); ?>
+
+                <br />
+                Last post by 
+                <?php if( ! is_null($lastPost->author)): ?>
+                <a href="<?php echo route('user/profile', $lastPost->author->id); ?>">
+                    <?php if($lastPost->author->isAdministrator()): ?>
+                    <span class="text-success"><?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)</span>
+                    <?php else: ?>
+                    <?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)
+                    <?php endif; ?>
+                </a>
+                <?php else: ?>
+                <em>Deleted</em>
+                <?php endif; ?>
+                <?php else: ?>
+                No Recent Activity
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php echo $topic->views; ?> <?php echo Str::plural('View', $topic->views); ?><br />
+                <?php echo $topic->replies; ?> <?php echo Str::plural('Replies', $topic->replies); ?>
+
+            </td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if( ! count($results)): ?>
+        <tr>
+            <td colspan="6">
+                No results found
+            </td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+<?php else: ?>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="col-xs-4">Body</th>
+            <th class="col-xs-3">Topic</th>
+            <th class="col-xs-3">Author</th>
+            <th class="col-xs-2">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($results as $post): ?>
+        <tr>
+            <td><?php echo e(str_limit($post->getOriginal('body'), 75)); ?></td>
+            <td>
+                <a href="<?php echo route('forums/topic', $post->topic->id); ?>"><?php echo e($post->topic->title); ?></a>
+                (<a href="<?php echo route('forums/forum', $post->topic->forum->id); ?>"><?php echo e($post->topic->forum->title); ?></a>)
+            </td>
+            <td>
+                <?php if( ! is_null($post->author)): ?>
+                <?php if($post->author->isAdministrator()): ?>
+                <span class="text-success"><?php echo e($post->author->display_name); ?> (#<?php echo $post->author->id; ?>)</span>
+                <?php else: ?>
+                <?php echo e($post->author->display_name); ?> (#<?php echo $post->author->id; ?>)
+                <?php endif; ?>
+                <?php else: ?>
+                <em>Deleted</em>
+                <?php endif; ?>
+            </td>
+            <td><?php echo $post->created_at->format('F jS Y, g:i A'); ?></td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if( ! count($results)): ?>
+        <tr>
+            <td colspan="4">
+                No results found
+            </td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+<?php endif; ?>
+
+<?php echo $results->appends(array_except(Input::all(), 'page'))->links(); ?>
+
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

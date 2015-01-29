@@ -1,0 +1,111 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<?php echo $__env->make('frontend/forums/_navigation', ['newTopicForum' => $forum], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="page-header">
+    <h1><?php echo $forum->title; ?></h1>
+</div>
+
+<?php echo $topics->links(); ?>
+
+
+<form class="form" role="form" method="post" action="<?php echo route('admin/forums/forum/topics/delete', $forum->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+                <th><input type="checkbox" onclick="check_all(this, '[name$=&quot;forum_topics[]&quot;]', false);" /></th>
+                <?php endif; ?>
+                <th>Title</th>
+                <th colspan="2">Latest Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($topics as $topic): ?>
+            <tr>
+                <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+                <td><input type="checkbox" name="forum_topics[]" value="<?php echo $topic->id; ?>" /></td>
+                <?php endif; ?>
+                <td>
+                    <strong>
+                        <a href="<?php echo route('forums/topic', $topic->id); ?>"><?php echo e($topic->title); ?></a>
+                        <?php if($topic->isStickied()): ?>
+                        <i class="fa fa-thumb-tack"></i>
+                        <?php endif; ?>
+                        <?php if($topic->isLocked()): ?>
+                        <i class="fa fa-lock"></i>
+                        <?php endif; ?>
+                    </strong>
+
+                    </strong>
+                    <br />
+                    By 
+                    <?php if( ! is_null($topic->author)): ?>
+                    <a href="<?php echo route('user/profile', $topic->author->id); ?>">
+                        <?php if($topic->author->isAdministrator()): ?>
+                        <span class="text-success"><?php echo e($topic->author->display_name); ?> (#<?php echo $topic->author->id; ?>)</span>
+                        <?php else: ?>
+                        <?php echo e($topic->author->display_name); ?> (#<?php echo $topic->author->id; ?>)
+                        <?php endif; ?>
+                    </a>
+                    <?php else: ?>
+                    <em>Deleted</em>
+                    <?php endif; ?>
+                    on <?php echo $topic->created_at->format('F jS, Y g:i A'); ?>
+
+                </td>
+                <td>
+                    <?php if( ! is_null($lastPost = $topic->lastPost())): ?>
+                    <?php echo $lastPost->created_at->format('F jS, Y g:i A'); ?>
+
+                    <br />
+                    Last post by 
+                    <?php if( ! is_null($lastPost->author)): ?>
+                    <a href="<?php echo route('user/profile', $lastPost->author->id); ?>">
+                        <?php if($lastPost->author->isAdministrator()): ?>
+                        <span class="text-success"><?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)</span>
+                        <?php else: ?>
+                        <?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)
+                        <?php endif; ?>
+                    </a>
+                    <?php else: ?>
+                    <em>Deleted</em>
+                    <?php endif; ?>
+                    <?php else: ?>
+                    No Recent Activity
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php echo $topic->views; ?> <?php echo Str::plural('View', $topic->views); ?><br />
+                    <?php echo $topic->replies; ?> <?php echo Str::plural('Replies', $topic->replies); ?>
+
+                </td>
+            </tr>
+            <?php endforeach; ?>
+
+            <?php if( ! count($topics)): ?>
+            <tr>
+                <td colspan="100%">
+                    No topics to display.
+                </td>
+            </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+    <p class="text-center">
+        <button type="submit" name="delete_topics" class="btn btn-danger">Delete</button>
+    </p>
+    <?php endif; ?>
+</form>
+
+<?php echo $topics->links(); ?>
+
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

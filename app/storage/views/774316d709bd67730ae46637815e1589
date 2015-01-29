@@ -1,0 +1,79 @@
+<?php if(isset($message) and strlen($message)): ?>
+<span class="btn btn-block btn-xs btn-primary disabled"><?php echo e($message); ?></span>
+<?php endif; ?>
+
+<?php if($dogCharacteristic->phenotypesAreRevealed() and ($phenotypes = $dogCharacteristic->phenotypes()->orderBy('priority', 'asc')->get()) and ! $phenotypes->isEmpty()): ?>
+<span class="center-block label label-primary label-lg label-wrap unbolded">
+	<?php foreach($phenotypes as $phenotype): ?>
+    <?php echo $phenotype->name; ?>
+
+    <?php endforeach; ?>
+</span>
+<?php endif; ?>
+
+<?php if( $dogCharacteristic->hasSeverity() and $dogCharacteristic->severityValueIsRevealed()): ?>
+<span class="center-block label label-primary label-lg label-wrap unbolded">
+    <?php echo $dogCharacteristic->formatSeverityValue(); ?>
+
+</span>
+<?php endif; ?>
+
+<?php if($dogCharacteristic->genotypesAreRevealed() and ! $dogCharacteristic->genotypes->isEmpty()): ?>
+<span class="center-block label label-primary label-lg label-wrap unbolded">
+	<?php foreach($dogCharacteristic->genotypes as $genotype): ?>
+    <?php echo $genotype->toSymbol(); ?>
+
+    <?php endforeach; ?>
+</span>
+<?php endif; ?>
+
+<?php if($dogCharacteristic->rangedValueIsRevealed()): ?>
+<div class="progress-group" id="dog-characteristic-range-<?php echo $dogCharacteristic->id; ?>">
+    <span class="progress-group-addon">
+        <a class="range-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $dogCharacteristic->characteristic->ranged_lower_boundary_label; ?>">
+            <i class="fa fa-step-backward"></i>
+        </a>
+    </span>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuetransitiongoal="<?php echo $dogCharacteristic->current_ranged_value; ?>" aria-valuemin="<?php echo $dogCharacteristic->characteristic->min_ranged_value; ?>" aria-valuemax="<?php echo $dogCharacteristic->characteristic->max_ranged_value; ?>" data-label="<?php echo $dogCharacteristic->formatRangedValue(); ?>"></div>
+    </div>
+    <span class="progress-group-addon">
+        <a class="range-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $dogCharacteristic->characteristic->ranged_upper_boundary_label; ?>">
+            <i class="fa fa-step-forward"></i>
+        </a>
+    </span>
+</div>
+<script type="text/javascript">
+$(function() {
+    $("#dog-characteristic-range-<?php echo $dogCharacteristic->id; ?> .progress .progress-bar").each(function(){
+    	var progress=$(this);
+        var label=progress.attr("data-label");
+        progress.progressbar({
+            display_text:"center",
+            use_percentage:false,
+            amount_format:function(e,i){
+                return label;
+            }
+        });
+    });
+});
+</script>
+<?php endif; ?>
+
+<?php /* Get all active tests that this dog has not been tested for */ ?>
+<?php if($showTests and $currentUser->ownsDog($dogCharacteristic->dog) and ($testableTests = $dogCharacteristic->untestedTests()->whereInTestableAgeRange($dogCharacteristic->dog->age)->orderBy('name', 'asc')->get()) and ! $testableTests->isEmpty()): ?>
+    <?php foreach($testableTests as $test): ?>
+    <button type="submit" name="test_dog" class="btn btn-success btn-xs btn-block" data-dog="<?php echo $dogCharacteristic->dog->id; ?>" data-test="<?php echo $test->id; ?>" data-loading-text="Testing..." <?php echo $dogCharacteristic->dog->isWorked() ? 'disabled' : ''; ?>>
+        <?php echo $test->name; ?>
+
+    </button>
+    <?php endforeach; ?>
+
+    <?php if($dogCharacteristic->hasBeenTested()): ?>
+    <p class="text-center"><em><small>Last tested at <?php echo Dog::formatAgeInYearsAndMonths($dogCharacteristic->last_tested_at_months, true); ?></small></em></p>
+    <?php endif; ?>
+<?php endif; ?>
+
+<?php if( ! $dogCharacteristic->phenotypesAreRevealed() and ! $dogCharacteristic->genotypesAreRevealed() and ! $dogCharacteristic->rangedValueIsRevealed() and ! $dogCharacteristic->severityValueIsRevealed() and ( ! $dogCharacteristic->hasUntestedTestableTest() or ! $currentUser->ownsDog($dogCharacteristic->dog))): ?>
+<em>Unknown</em>
+<?php endif; ?>

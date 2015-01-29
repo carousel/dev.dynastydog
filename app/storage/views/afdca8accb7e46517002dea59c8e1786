@@ -1,0 +1,61 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Edit Help Category</h1>
+</div>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/help/help/category/edit', $helpCategory->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-helpcategory-id" class="col-sm-2 control-label">ID</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+                <?php echo $helpCategory->id; ?>
+
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-helpcategory-title" class="col-sm-2 control-label">Title</label>
+        <div class="col-sm-10">
+            <input type="text" name="title" class="form-control" id="cp-helpcategory-title" value="<?php echo e(Input::old('title', $helpCategory->title)); ?>" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-helpcategory-parent" class="col-sm-2 control-label">Parent</label>
+        <div class="col-sm-10">
+            <select name="parent" class="form-control" id="cp-helpcategory-parent">
+                <option value="">None</option>
+                <?php foreach($parentHelpCategories as $parentHelpCategory): ?>
+                    <option value="<?php echo $parentHelpCategory->id; ?>" <?php echo (Input::old('parent', $helpCategory->parent_id) == $parentHelpCategory->id) ? 'selected' : ''; ?>><?php echo $parentHelpCategory->title; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-helpcategory-helppages" class="col-sm-2 control-label">Help Pages</label>
+        <div class="col-sm-10">
+            <select name="help_pages[]" class="form-control" id="cp-helpcategory-helppages" multiple size="10">
+                <?php foreach($helpPages as $helpPage): ?>
+                    <option value="<?php echo $helpPage->id; ?>" <?php echo (in_array($helpPage->id, (array)Input::old('help_pages', $helpCategory->pages()->lists('id')))) ? 'selected' : ''; ?>><?php echo $helpPage->title; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <a href="<?php echo route('admin/help/help/category/delete', $helpCategory->id); ?>" name="delete_help_category" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this help category?');">Delete</a>
+            <button type="submit" name="edit_help_category" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

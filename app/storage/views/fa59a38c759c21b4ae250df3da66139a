@@ -1,0 +1,36 @@
+<?php foreach(($chatMessages = ChatMessage::with('author')->orderBy('created_at', 'desc')->orderBy('id', 'desc')->take(50)->get()) as $message): ?>
+<li class="chat_message <?php echo $message->id % 2 ? 'out' : 'in'; ?>">
+    <div class="message">
+        <span class="date-time"><?php echo $message->created_at->format('M jS, Y g:i A'); ?></span>
+
+        <?php if( ! is_null($currentUser) and $currentUser->hasAnyAccess(['admin'])): ?>
+            <button type="button" class="close" data-id="<?php echo $message->id; ?>" data-dismiss="chat_message" onclick="return confirm('Are you sure you want to permanently delete this chat message?');">×</button>
+        <?php endif; ?>
+        <br />
+        <?php if(is_null($message->author)): ?>
+        <em>Deleted</em>
+        <?php else: ?>
+        <a href="<?php echo route('user/profile', $message->author->id); ?>" class="name" data-original-title="" title="">
+            <?php if($message->author->isAdministrator()): ?>
+                <span class="text-success"><strong><?php echo e($message->author->display_name); ?> (#<?php echo $message->author->id; ?>)</strong></span>
+            <?php else: ?>
+                <?php echo $message->author->isUpgraded() ? '<strong>' : ''; ?>
+
+                <?php echo e($message->author->display_name); ?> (#<?php echo $message->author->id; ?>)
+                <?php echo $message->author->isUpgraded() ? '</strong>' : ''; ?>
+
+            <?php endif; ?>
+        </a>
+        <?php endif; ?>
+        <span class="breakable body body-grey" style="color: #<?php echo e($message->hex); ?>;"><?php echo $message->body; ?></span>
+    </div>
+</li>
+<?php endforeach; ?>
+
+<?php if( ! $chatMessages): ?>
+<li class="in">
+    <div class="message">
+        <span class="body-grey">No chat messages to display</span>
+    </div>
+</li>
+<?php endif; ?>

@@ -1,0 +1,62 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Conversation</h1>
+</div>
+
+<h2><?php echo e($conversation->subject); ?></h2>
+
+<ul class="chats">
+    <?php foreach($messages as $message): ?>
+    <li class="<?php echo $currentUser->id == $message->user_id ? 'out' : 'in'; ?>">
+        <div class="message">
+            <span class="date-time"><?php echo $message->created_at->format('F jS, Y g:i A'); ?></span><br />
+            <?php if( ! is_null($message->user)): ?>
+            <a href="<?php echo route('user/profile', $message->user->id); ?>">
+                <?php echo e($message->user->display_name); ?> (#<?php echo $message->user->id; ?>)
+            </a>
+            <?php else: ?>
+            <em>Deleted</em>
+            <?php endif; ?>
+            <span class="body body-grey"><?php echo nl2br($message->body); ?></span>
+        </div>
+    </li>
+    <?php endforeach; ?>
+</ul>
+
+<?php echo $messages->links(); ?>
+
+
+<br />
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h3 class="panel-title">
+            <big>Reply</big>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form" method="post" action="<?php echo route('user/inbox/conversation/reply', $conversation->id); ?>">
+            <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <textarea name="body" class="form-control" rows="10"><?php echo e(Input::old('body')); ?></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-12 text-right">
+                    <button type="submit" name="reply" class="btn btn-primary">Send Reply</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

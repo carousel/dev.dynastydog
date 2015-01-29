@@ -1,0 +1,31 @@
+<?php if($lead): ?>
+<div class="row">
+    <div class="col-xs-12 lead">
+        <a href="<?php echo route('news/post', $newsPost->id); ?>"><?php echo e($newsPost->title); ?></a>
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="row">
+    <div class="col-xs-12"><?php echo nl2br($newsPost->body); ?></div>
+</div>
+
+<?php foreach($newsPost->polls as $poll): ?>
+<?php echo $__env->make('frontend/news/_poll', ['poll' => $poll], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php endforeach; ?>
+
+<div class="row">
+    <div class="col-md-4">
+        <a href="<?php echo route('news/post', $newsPost->id); ?>">Comments (<?php echo $newsPost->comments()->count(); ?>)</a>
+    </div>
+    <div class="col-md-8 text-md-right">
+        <em>Post added on <?php echo $newsPost->created_at->format('F jS, Y g:i A'); ?></em>
+        <div class="btn-group">
+            <?php if($currentUser->hasAnyAccess(['admin'])): ?>
+            <a class="btn btn-primary btn-xs" href="<?php echo route('admin/news/post/edit', $newsPost->id); ?>">Edit</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<hr />

@@ -1,0 +1,96 @@
+<?php /* Page content */ ?>
+
+<?php $__env->startSection('content'); ?>
+
+
+
+<div class="page-header">
+
+    <h1>Credits & Contact Staff</h1>
+
+</div>
+
+<h4>
+	Credits
+</h4>
+
+<p>
+	<a href="http://dynastydog.com/user/profile/1">Baus</a> - Owner & Game Designer
+</p>
+<p>
+	<a href="http://taywhited.com">Taylor Whited</a> - Programmer
+</p>
+<p>
+	<a href="http://maranez.deviantart.com/">Martina (Maranez)</a> - Banner Artist
+</p>
+<p>
+	<a href="http://dynastydog.com/user/profile/136">Eispiritu</a> - Most Dog Breed Silhouettes
+</p>
+
+<hr>
+
+<h4>
+	Contact Staff
+</h4>
+
+<form role="form" method="post" action="<?php echo route('staff'); ?>">
+
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+
+    <div class="form-group">
+
+        <label for="from-name">Your Name</label>
+
+        <input type="text" name="from" class="form-control" id="from-name" value="<?php echo e(Input::old('from')); ?>" placeholder="Enter your name" required>
+
+        <?php echo $errors->first('from', '<span class="help-block">:message</span>'); ?>
+
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="email-address">Your Email Address</label>
+
+        <input type="email" name="email" class="form-control" id="email-address" value="<?php echo e(Input::old('email')); ?>" placeholder="Enter email" required>
+
+        <?php echo $errors->first('email', '<span class="help-block">:message</span>'); ?>
+
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="body">Message</label>
+
+        <textarea name="body" class="form-control" rows="10"><?php echo e(Input::old('body')); ?></textarea>
+
+        <?php echo $errors->first('body', '<span class="help-block">:message</span>'); ?>
+
+
+    </div>
+
+
+
+    <?php echo $errors->first('recaptcha_response_field', '<span class="help-block text-center">:message</span>'); ?>
+
+
+    <?php echo Form::captcha(); ?>
+
+
+
+
+    <br />
+
+
+
+    <button type="submit" name="contact_staff" class="btn btn-primary btn-block">Contact Us!</button>
+
+</form>
+
+
+
+<?php $__env->stopSection(); ?>
+
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

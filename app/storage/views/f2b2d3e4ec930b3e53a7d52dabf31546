@@ -1,0 +1,930 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1><?php echo e($dog->fullName()); ?> (#<?php echo $dog->id; ?>)</h1>
+</div>
+
+<?php if($dog->isPetHomed()): ?>
+<div class="alert alert-purple text-center">
+    <big><strong>LIVES IN A PET HOME</strong></big>
+</div>
+<?php endif; ?>
+
+<?php if($dog->isDeceased()): ?>
+<div class="alert alert-danger text-center">
+    <big><strong>DECEASED</strong></big>
+</div>
+<?php endif; ?>
+
+<?php if($dog->isForStud()): ?>
+<div class="alert alert-danger text-center">
+    <big><strong>FOR <?php echo $dog->isForImmediateStud() ? 'IMMEDIATE' : 'REQUEST'; ?> STUD</strong></big>
+</div>
+<?php endif; ?>
+
+<?php if($dog->isPregnant()): ?>
+<div class="alert alert-warning text-center">
+    <big><strong>PREGNANT</strong></big>
+</div>
+<?php elseif($dog->isInHeat()): ?>
+<div class="alert alert-warning text-center">
+    <big><strong>IN HEAT</strong></big>
+</div>
+<?php endif; ?>
+
+<?php if($dog->isFemale() and $dog->hasBeginnersLuckRequests()): ?>
+    <div class="alert alert-info text-center">
+        <big><strong>BEGINNER'S LUCK REQUESTS</strong></big>
+        <ul class="list-unstyled">
+            <?php foreach($dog->beginnersLuckRequests as $request): ?>
+            <li>
+                Beginner's Luck request to 
+                <?php echo (is_null($request->beginner) ? '<em>Unkown</em>' : $request->beginner->linkedNameplate()); ?> 
+                for breeding with 
+                <?php echo (is_null($request->dog) ? '<em>Unkown</em>' : $request->dog->linkedNameplate()); ?>. 
+
+                <?php if($currentUser->ownsDog($dog)): ?>
+                <a href="<?php echo route('dog/blr/revoke', $request->id); ?>">Revoke?</a>
+                <?php endif; ?>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <?php if( ! is_null($image = $dog->getImageUrl())): ?>
+        <div class="col-md-5">
+            <a href="<?php echo e($image); ?>">
+                <img src="<?php echo e($image); ?>" class="img-responsive center-block" alt="Dog Image" title="Dog Image" />
+            </a>
+        </div>
+        <?php endif; ?>
+        <div class="col-md-<?php echo is_null($image) ? 12 : 7; ?>">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-5">
+                            <h3 class="panel-title">
+                                General Info
+                            </h3>
+                        </div>
+                        <div class="col-xs-4">
+                            <?php if( ! is_null($previous)): ?>
+                            <a href="<?php echo route('dog/profile', $previous->id); ?>">
+                                <i class="fa fa-backward pull-none"></i>
+                                Previous Dog
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-xs-3 text-right">
+                            <?php if( ! is_null($next)): ?>
+                            <a href="<?php echo route('dog/profile', $next->id); ?>">
+                                Next Dog
+                                <i class="fa fa-forward pull-none"></i>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+
+
+                            <div class="condensed form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Name:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <?php if($currentUser->ownsDog($dog) and $dog->isAlive()): ?>
+                                        <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#change-name"><?php echo e($dog->fullName()); ?></button>
+                                        <?php else: ?>
+                                        <p class="form-control-static"><?php echo e($dog->fullName()); ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Owner:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <p class="form-control-static"><?php echo $dog->isPetHomed() ? 'Pet Home' : $dog->owner->linkedNameplate(); ?></p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Breeder:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <?php if($dog->isImported()): ?>
+                                        <p class="form-control-static">Imported</p>
+                                        <?php elseif($dog->isBred() and $dog->hasBreeder()): ?>
+                                        <p class="form-control-static"><?php echo $dog->breeder->linkedNameplate(); ?></p>
+                                        <?php else: ?>
+                                        <p class="form-control-static"><em>Unknown</em></p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Age:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <p class="form-control-static"><?php echo $dog->getAgeInYearsAndMonths(); ?></p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Sex:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <p class="form-control-static"><?php echo $dog->sex->name; ?></p>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Breed:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <?php if($dog->isRegistered()): ?>
+                                            <?php echo $dog->breed->name; ?>
+
+                                            <?php if($currentUser->ownsDog($dog)): ?>
+                                            <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#register-breed">Change Registration</button>
+                                            <?php endif; ?>
+                                        <?php elseif($currentUser->ownsDog($dog) and $dog->isAlive()): ?>
+                                        <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#register-breed">Register Dog</button>
+                                        <?php else: ?>
+                                        <p class="form-control-static">Unregistered</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php if( ! is_null($dog->breed) and $dog->breed->isExtinctable()): ?>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-xs-3 control-label">Active Breed Member:</label>
+                                    <div class="col-sm-8 col-xs-9">
+                                        <p class="form-control-static"><?php echo $dog->isActiveBreedMember() ? 'Yes' : 'No'; ?></p>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <?php if($currentUser->ownsDog($dog) and $dog->isAlive()): ?>
+                            <form role="form" method="post" action="<?php echo route('dog/profile/save_notes', $dog->id); ?>">
+                                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                                <div class="form-group">
+                                    <label class="sr-only">Notes</label>
+                                    <textarea name="notes" class="form-control" rows="3"><?php echo e($dog->notes); ?></textarea>
+                                </div>
+                                <button name="save_notes" type="submit" class="btn btn-primary btn-xs pull-right">Save Notes</button>
+                            </form>
+                            <?php else: ?>
+                            <?php echo e($dog->notes); ?>
+
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <?php if($dog->isAlive()): ?>
+                        <?php if($dog->isMale() and ($dog->isForStud() or $currentUser->ownsDog($dog))): ?>
+                            <div class="row">
+                            <div class="col-md-12">
+                                <form class="form-inline" role="form" method="post" action="<?php echo route('dog/breed/request', $dog->id); ?>">
+                                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                                    <div class="form-group">
+                                        <label class="sr-only">Breed With:</label>
+                                        <select name="bitch_to_breed_with" class="form-control input-xs" required>
+                                            <?php foreach($breedableBitches as $bitch): ?>
+                                            <option value="<?php echo $bitch->id; ?>" <?php echo Input::old('bitch_to_breed_with') == $bitch->id ? 'selected' : ''; ?>>
+                                                <?php echo e($bitch->nameplate()); ?>
+
+                                            </option>
+                                            <?php endforeach; ?>
+
+                                            <?php if( ! count($breedableBitches)): ?>
+                                            <option value="">No bitches available to breed</option>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+                                    <button type="submit" name="request_breeding" class="btn btn-primary btn-xs">Breed With</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <br />
+                        <?php endif; ?>
+
+                        <?php if($currentUser->ownsDog($dog)): ?>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="btn-group btn-group-justified">
+                                    <div class="btn-group">
+                                        <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#change-image">Change Image</button>
+                                    </div>
+
+                                    <?php if( ! $dog->hasKennelPrefix()): ?>
+                                    <div class="btn-group">
+                                        <a href="<?php echo route('dog/profile/add_prefix', $dog->id); ?>" class="btn btn-primary btn-xs" onclick="return confirm('It will cost <?php echo Dynasty::credits(Config::get('game.dog.prefix_cost')); ?> to prefix this dog. Are you sure you want to add a prefix?');">Add Prefix</a>
+                                    </div>
+                                    <?php endif; ?>
+
+                                    <?php if($currentUser->hasCompletedTutorialStage('first-breeding')): ?>
+                                    <div class="btn-group">
+                                        <?php if($dog->isPendingOwnership()): ?>
+                                            <?php if($dog->isLentOut()): ?>
+                                            <a class="btn btn-primary btn-xs" href="<?php echo route('dog/lend/return', $dog->lendRequest->id); ?>">Send Back</a>
+                                            <?php else: ?>
+                                            <span class="btn btn-primary btn-xs disabled">Dog Sent (Pending)</span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                        <button class="btn btn-primary btn-xs" data-toggle="modal" data-target="#send-to-player">Send to Player</button>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <a href="<?php echo route('dog/pet_home', $dog->id); ?>" class="btn btn-danger btn-xs" onclick="return confirm('Are you absolutely sure you want to send the dog to a pet home? This removes the dog from your kennel and the game, although its information is retained in pedigrees. You will not be able to get it back.');" data-toggle="tooltip" data-placement="top" title="Permanently remove this dog from your kennel; will not affect pedigrees.">Pet Home <i class="fa fa-question-circle"></i></a>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<?php if($dog->isIncomplete() and $dog->isAlive() and $currentUser->ownsDog($dog)): ?>
+<div class="alert alert-warning text-center">
+    <big><strong>INCOMPLETE</strong></big>
+</div>
+
+<div class="well well-sm">
+    <p class="text-center text-warning">
+        You need to complete this dog to reveal all of its characteristics. This will not use any turns.
+    </p>
+
+    <p class="text-center">
+        <a class="btn btn-default btn-lg btn-block btn-warning" href="<?php echo route('dog/profile/complete', $dog->id); ?>" data-loading-text="<i class='fa fa-cog fa-spin'></i> Completing...">
+            <i class="fa fa-check"></i> Complete Dog
+        </a>
+    </p>
+</div>
+<?php elseif($dog->isComplete()): ?>
+<div class="panel panel-default">
+    <div class="panel-heading panel-nav clearfix">
+        <ul class="nav nav-pills">
+            <?php if($dog->hasOwner() and $dog->owner->isUpgraded()): ?>
+            <li <?php echo Input::get('view', ($dog->owner->isUpgraded() ? 'summary' : null)) == 'summary' ? 'class="active"' : ''; ?>><a href="#summary" data-toggle="tab">Summary</a></li>
+            <?php endif; ?>
+
+            <?php if($currentUser->ownsDog($dog) and $dog->isMale() and $dog->isBreedable()): ?>
+            <li class="pull-right <?php echo $activeTab == 'studding' ? 'active' : ''; ?>"><a href="#studding" data-toggle="tab">Studding</a></li>
+            <?php endif; ?>
+
+            <li class="pull-right <?php echo ($activeTab == 'offspring') ? 'active' : ''; ?>"><a href="#offspring" data-toggle="tab">Offspring</a></li>
+
+            <?php if($dog->hasPedigree()): ?>
+            <li class="pull-right <?php echo ($activeTab == 'pedigree') ? 'active' : ''; ?>"><a href="#pedigree" data-toggle="tab">Pedigree</a></li>
+            <?php endif; ?>
+
+            <li class="pull-right <?php echo ($activeTab == 'contests') ? 'active' : ''; ?>"><a href="#contests" data-toggle="tab">Contest Results</a></li>
+
+            <?php foreach($characteristicCategories as $category): ?>
+            <li class="pull-right <?php echo ($activeTab == 'charcat'.$category['id']) ? 'active' : ''; ?>"><a href="#tabs_charcat_<?php echo $category['id']; ?>" data-toggle="tab"><?php echo $category['name']; ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+
+    <!-- Tab panes -->
+    <div class="tab-content panel-body">
+        <?php if($dog->hasOwner() and $dog->owner->isUpgraded()): ?>
+        <div class="tab-pane <?php echo $activeTab == 'summary' ? 'active' : ''; ?>" id="summary">
+
+            <div class="row">
+                <?php foreach($summarizedCategories as $category): ?>
+                <div class="col-md-<?php echo $category['column']; ?>" data-dog-char-parent="summary">
+                    <div class="panel panel-grey">
+                        <div class="panel-heading clearfix">
+                            <h3 class="panel-title">
+                                <?php echo $category['parent_name']; ?>: <?php echo $category['name']; ?>
+
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="container-fluid">
+                                <?php foreach($category['characteristics'] as $dogCharacteristic): ?>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <?php if($currentUser->ownsDog($dog) and $dog->isAlive()): ?>
+                                            <a class="btn btn-link btn-xs text-danger" href="<?php echo route('dog/profile/summary/remove', $dogCharacteristic->id); ?>">
+                                                <i class="fa fa-times text-danger pull-left"></i>
+                                            </a>
+                                        <?php endif; ?>
+
+                                        <?php if($dogCharacteristic->characteristic->hasHelpPage()): ?>
+                                        <a href="<?php echo route('help/page', $dogCharacteristic->characteristic->helpPage->id); ?>">
+                                            <strong><?php echo $dogCharacteristic->characteristic->name; ?></strong>
+                                        </a>
+                                        <?php else: ?>
+                                        <strong><?php echo $dogCharacteristic->characteristic->name; ?></strong>
+                                        <?php endif; ?>
+
+                                        <a data-toggle="tooltip" data-placement="top" title="<?php echo e($dogCharacteristic->characteristic->description); ?>">
+                                            <i class="fa fa-question-circle"></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <?php echo $__env->make('frontend/dog/_characteristic', ['dogCharacteristic' => $dogCharacteristic, 'showTests' => true, 'message' => ''], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+
+                <?php if( ! count($summarizedCategories)): ?>
+                <div class="col-md-12">
+                    <p>No characteristics have been added to this Summary.</p>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <?php if($currentUser->ownsDog($dog)): ?>
+            <div class="callout callout-info no-margin">
+                Don't want to build this Summary from scratch? Use the <b>Copy Summary</b> function in the <b>Actions</b> tab on your <a href="<?php echo route('user/kennel'); ?>">kennel page</a> to copy another dog's Summary to this dog.
+            </div>
+
+            <hr />
+
+            <form class="form-horizontal" role="form" method="post" action="<?php echo route('dog/profile/summary/add', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+                <div class="form-group">
+                    <label for="summary-characteristics" class="col-sm-2 control-label">Characteristic</label>
+                    <div class="col-sm-10">
+                        <select name="characteristics_to_summarize[]" class="form-control" id="summary-characteristics" size="5" multiple>
+                            <?php foreach($summaryCharacteristicCategories as $characteristicCategory): ?>
+                            <optgroup label="<?php echo $characteristicCategory->parent->name; ?>: <?php echo $characteristicCategory->name; ?>">
+                                <?php foreach($characteristicCategory->characteristics as $characteristic): ?>
+                                <option value="<?php echo $characteristic->id; ?>"><?php echo $characteristic->name; ?></option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <?php endforeach; ?>
+
+                            <?php if($summaryCharacteristicCategories->isEmpty()): ?>
+                            <option value="">No characteristics available</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2 text-right">
+                        <button type="submit" name="add_to_summary" class="btn btn-primary" data-loading-text="<i class='fa fa-cog fa-spin'></i> Adding...">Add to Summary</button>
+                    </div>
+                </div>
+            </form>
+
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if($dog->isMale() and $currentUser->ownsDog($dog) and $dog->isBreedable()): ?>
+        <div class="tab-pane <?php echo $activeTab == 'studding' ? 'active' : ''; ?>" id="studding">
+            <form class="form-horizontal" role="form" method="post" action="<?php echo route('dog/profile/manage_studding', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Put Up for Stud?</label>
+                    <div class="col-sm-10">
+                        <div class="radio">
+                            <label class="radio-inline">
+                                <input type="radio" name="up_for_stud" value="no" <?php echo Input::old('up_for_stud', ($dog->isForStud() ? 'yes' : 'no')) == 'no' ? 'checked' : ''; ?> />
+                                No
+                            </label>
+                        </div>
+
+                        <div class="radio">
+                            <label class="radio-inline">
+                                <input type="radio" name="up_for_stud" value="yes" <?php echo Input::old('up_for_stud', ($dog->isForStud() ? 'yes' : 'no')) == 'yes' ? 'checked' : ''; ?> />
+                                Yes
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Type</label>
+                    <div class="col-sm-10">
+                        <div class="radio">
+                            <label class="radio-inline">
+                                <input type="radio" name="stud_type" value="immediate" <?php echo Input::old('stud_type', ($dog->isForImmediateStud() ? 'immediate' : null)) == 'immediate' ? 'checked' : ''; ?> />
+                                Immediate
+                            </label>
+                        </div>
+
+                        <div class="radio">
+                            <label class="radio-inline">
+                                <input type="radio" name="stud_type" value="request" <?php echo Input::old('stud_type', ($dog->isForRequestStud() ? 'request' : null)) == 'request' ? 'checked' : ''; ?> />
+                                Request
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" name="save_studding" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+
+        <div class="tab-pane <?php echo $activeTab == 'offspring' ? 'active' : ''; ?>" id="offspring">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Parent</th>
+                        <th>Gender</th>
+                        <th>Breeder</th>
+                        <th>Age</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($offspring as $puppy): ?>
+                    <tr>
+                        <td><?php echo $puppy->linkedNameplate(); ?></td>
+                        <td>
+                            <?php if($puppy->litter->dam_id == $dog->id): ?>
+                            <?php echo ! is_null($puppy->litter->sire) ? $puppy->litter->sire->linkedNameplate() : '<em>Unknown</em>'; ?>
+
+                            <?php else: ?>
+                            <?php echo ! is_null($puppy->litter->dam) ? $puppy->litter->dam->linkedNameplate() : '<em>Unknown</em>'; ?>
+
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo $puppy->sex->name; ?></td>
+                        <td>
+                            <?php echo $puppy->hasBreeder() ? $puppy->breeder->linkedNameplate() : '<em>Unknown</em>'; ?>
+
+                        </td>
+                        <td><?php echo $puppy->getAgeInYearsAndMonths(); ?></td>
+                        <td>
+                            <?php if($puppy->isDeceased()): ?>
+                            Passed Away
+                            <?php elseif($puppy->isPetHomed()): ?>
+                            Pet Homed
+                            <?php else: ?>
+                            Alive
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+
+                    <?php if( ! count($offspring)): ?>
+                    <tr>
+                        <td colspan="6">No offspring to show</td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if($dog->hasPedigree()): ?>
+        <div class="tab-pane <?php echo $activeTab == 'pedigree' ? 'active' : ''; ?>" id="pedigree">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Coefficient of Inbreeding:</strong>
+                </div>
+                <div class="col-md-9">
+                    <?php echo $dog->coi; ?>
+
+                </div>
+            </div>
+            <table class="table table-condensed table-responsive">
+                <tbody>
+                <?php foreach($pedigreeSlots as $slot): ?>
+                    <tr class="<?php echo ($slot['type'] == Pedigree::DAM) ? 'dog-pedigree-dam' : 'dog-pedigree-sire info'; ?>">
+                        <td rowspan="<?php echo $slot['rowspan']; ?>">
+                            <?php if( ! is_null($slot['ancestor'])): ?>
+                                <p><?php echo $slot['ancestor']->linkedNameplate(); ?></p>
+                                <p><?php echo $slot['ancestor']->hasBreed() ? $slot['ancestor']->breed->name : '<em>Unregistered</em>'; ?></p>
+                                <?php if($slot['ancestor']->hasBreeder()): ?>
+                                <p><small>Breeder: <?php echo $slot['ancestor']->breeder->linkedNameplate(); ?></small></p>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <em>Unknown</em>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
+
+        <div class="tab-pane <?php echo $activeTab == 'contests' ? 'active' : ''; ?>" id="contests">
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="well well-sm well-info">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-xs-5 text-right">
+                                    <h2 class="no-margin"><?php echo number_format($dog->small_contest_wins); ?></h2>
+                                </div>
+                                <div class="col-xs-6 no-padding">
+                                    Total <?php echo Str::plural('Win', $dog->small_contest_wins); ?> in Small Contests
+                                </div>
+                                <div class="col-xs-1 text-right no-padding">
+                                    <a data-toggle="tooltip" data-html="true" data-placement="right" title="<?php echo Config::get('game.contest.size_min_small'); ?>-<?php echo Config::get('game.contest.size_min_medium') - 1; ?>">
+                                        <i class="fa fa-question-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="well well-sm well-success">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-xs-5 text-right">
+                                    <h2 class="no-margin"><?php echo number_format($dog->medium_contest_wins); ?></h2>
+                                </div>
+                                <div class="col-xs-6 no-padding">
+                                    Total <?php echo Str::plural('Win', $dog->medium_contest_wins); ?> in Medium Contests
+                                </div>
+                                <div class="col-xs-1 text-right no-padding">
+                                    <a data-toggle="tooltip" data-html="true" data-placement="right" title="<?php echo Config::get('game.contest.size_min_medium'); ?>-<?php echo Config::get('game.contest.size_min_large') - 1; ?>">
+                                        <i class="fa fa-question-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="well well-sm well-warning">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-xs-5 text-right">
+                                    <h2 class="no-margin"><?php echo number_format($dog->large_contest_wins); ?></h2>
+                                </div>
+                                <div class="col-xs-6 no-padding">
+                                    Total <?php echo Str::plural('Win', $dog->large_contest_wins); ?> in Large Contests
+                                </div>
+                                <div class="col-xs-1 text-right no-padding">
+                                    <a data-toggle="tooltip" data-html="true" data-placement="right" title="<?php echo Config::get('game.contest.size_min_large'); ?>+">
+                                        <i class="fa fa-question-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h4>Recent Contests - Last 30 Days</h4>
+
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Run Date</th>
+                        <th colspan="3">Judging Requirements</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($recentContestEntries as $entry): ?>
+                        <?php if($entry->hasWon()): ?>
+                        <tr <?php echo $entry->contest->isSmall() ? 'info' : ( $entry->contest->isMedium() ? 'success' : 'warning' ); ?>>
+                        <?php else: ?>
+                        <tr>
+                        <?php endif; ?>
+                        <td>
+                            <?php echo $entry->rank ? $entry->rank : 'N/A'; ?>
+
+                        </td>
+                        <td>
+                            <?php echo e($entry->contest->name); ?>
+
+
+                            <?php if($entry->contest->isSmall()): ?>
+                            <strong>(S)</strong>
+                            <?php elseif($entry->contest->isMedium()): ?>
+                            <strong>(M)</strong>
+                            <?php elseif($entry->contest->isLarge()): ?>
+                            <strong>(L)</strong>
+                            <?php endif; ?>
+
+                            <br />
+
+                            <small><em>Type: <?php echo e($entry->contest->type_name); ?></em></small>
+                        </td>
+                        <td><?php echo $entry->contest->run_on->format('M. j'); ?></td>
+
+                        <?php foreach($entry->contest->requirements as $requirement): ?>
+                        <td>
+                            <?php echo $requirement->characteristic->name; ?>: <?php echo $requirement->getType(); ?>
+
+                        </td>
+                        <?php endforeach; ?>
+
+                        <td>
+                            <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#contest-entry-<?php echo $entry->id; ?>-entries">
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="contest-entry-<?php echo $entry->id; ?>-entries">
+                        <td colspan="7">
+                            <table class="table table-condensed table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Dog</th>
+                                        <?php foreach($entry->contest->requirements as $requirement): ?>
+                                        <th><?php echo $requirement->characteristic->name; ?></th>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($entry->contest->entries()->orderBy('rank', 'asc')->get() as $otherEntry): ?>
+                                    <tr <?php echo $otherEntry->dog_id == $dog->id ? 'class="active"'  : ''; ?>>
+                                        <td>
+                                            <?php echo $otherEntry->rank ? $otherEntry->rank : 'N/A'; ?>
+
+                                        </td>
+                                        <td>
+                                            <?php echo $otherEntry->dog->linkedNameplate(); ?>
+
+                                        </td>
+                                        <?php foreach($entry->contest->requirements as $requirement): ?>
+                                        <td><?php echo ! is_null($dogCharacteristic = $otherEntry->dog->characteristics()->whereCharacteristic($requirement->characteristic->id)->first()) ? $dogCharacteristic->formatRangedValue() : '<em>Unknown</em>'; ?></td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                    <?php endforeach; ?>
+
+                                    <?php if( ! count($entry->contest->entries)): ?>
+                                    <tr>
+                                        <td colspan="100%">
+                                            No dogs have entered
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+
+                    <?php if( ! count($recentContestEntries)): ?>
+                    <tr>
+                        <td colspan="7">No recent contest results to display</td>
+                    </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php foreach($characteristicCategories as $category): ?>
+        <div class="tab-pane <?php echo ($activeTab == 'charcat'.$category['id']) ? 'active' : ''; ?>" id="tabs_charcat_<?php echo $category['id']; ?>">
+            <div class="container-fluid">
+                <?php if($category['is_health']): ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-grey no-margin">
+                            <div class="panel-heading clearfix">
+                                <h3 class="panel-title">
+                                    Current Health Problems
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="container-fluid">
+                                    <ul>
+                                        <?php foreach($symptoms as $symptom): ?>
+                                        <li><?php echo $symptom->characteristicSeveritySymptom->symptom->name; ?></li>
+                                        <?php endforeach; ?>
+
+                                        <?php if( ! count($symptoms)): ?>
+                                        <li>None</li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout-warning">
+                    <p class="text-center">The list of disorders below is specific to the things your dog may have or carry. Different dogs have differing disorder lists.</p>
+                </div>
+                <?php endif; ?>
+                
+                <div class="row">
+                    <?php foreach($category['subcategories'] as $subcategory): ?>
+                    <div class="col-md-<?php echo $category['column']; ?>" data-dog-char-parent="<?php echo $category['id']; ?>">
+                        <div class="panel panel-grey">
+                            <div class="panel-heading clearfix">
+                                <h3 class="panel-title">
+                                    <?php echo $subcategory['name']; ?>
+
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="container-fluid">
+                                    <?php foreach($subcategory['characteristics'] as $dogCharacteristic): ?>
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <?php if($dogCharacteristic->characteristic->hasHelpPage()): ?>
+                                            <a href="<?php echo route('help/page', $dogCharacteristic->characteristic->helpPage->id); ?>">
+                                                <strong><?php echo $dogCharacteristic->characteristic->name; ?></strong>
+                                            </a>
+                                            <?php else: ?>
+                                            <strong><?php echo $dogCharacteristic->characteristic->name; ?></strong>
+                                            <?php endif; ?>
+
+                                            <a data-toggle="tooltip" data-placement="top" title="<?php echo e($dogCharacteristic->characteristic->description); ?>">
+                                                <i class="fa fa-question-circle"></i>
+                                            </a>
+                                        </div>
+
+                                        <div class="col-md-7">
+                                            <?php echo $__env->make('frontend/dog/_characteristic', ['dogCharacteristic' => $dogCharacteristic, 'showTests' => true, 'message' => ''], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="modal fade" id="change-name" tabindex="-1" role="dialog" aria-labelledby="change-name-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post" action="<?php echo route('dog/profile/change_name', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="changeNameName">Name</label>
+                        <?php if($dog->hasKennelPrefix()): ?>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-addon"><?php echo e($dog->kennel_prefix); ?></span>
+                            <input type="text" name="new_name" class="form-control input-lg" id="changeNameName" placeholder="Enter name" value="<?php echo e(Input::old('new_name', $dog->name)); ?>" maxlength="32" required />
+                        </div>
+                        <?php else: ?>
+                        <input type="text" name="new_name" class="form-control input-lg" id="changeNameName" placeholder="Enter name" value="<?php echo e(Input::old('new_name', $dog->name)); ?>" maxlength="32" required />
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" name="change_name">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="change-image" tabindex="-1" role="dialog" aria-labelledby="change-image-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post" action="<?php echo route('dog/profile/change_image', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="changeImageImageURL">Display options</label>
+                        <?php foreach($displayImageOptions as $id => $option): ?>
+                        <div class="radio">
+                            <label class="radio-inline">
+                                <input type="radio" name="display_image_option" value="<?php echo $id; ?>" <?php echo Input::old('display_image_option', $dog->display_image) == $id ? 'checked' : ''; ?>/> 
+                                <?php echo $option; ?>
+
+                            </label>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="changeImageImageURL">Image URL</label>
+                        <input type="text" name="image_url" class="form-control input-lg" id="changeImageImageURL" placeholder="Enter URL" value="<?php echo e($dog->image_url); ?>" maxlength="255" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" name="change_image">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="register-breed" tabindex="-1" role="dialog" aria-labelledby="register-breed-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post" action="<?php echo route('dog/profile/change_breed', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                <div class="modal-body">
+                    <p> Please select a breed to register your dog as. Your dog must fit the breed standard for that breed in order to be eligible for registration.</p>
+
+                    <p>If your dog is Unregistered, you can register it for free. Every registered dog can also change its breed registration once, for free. Every breed registration change after that costs <?php echo Dynasty::credits(Config::get('game.dog.change_breed_cost')); ?>.</p>
+
+                    <p class="text-center">
+                        <strong>Next Registration Change:</strong>
+                        <?php if($dog->hasHadBreedChanged()): ?>
+                        <?php echo Dynasty::credits(Config::get('game.dog.change_breed_cost')); ?>
+
+                        <?php else: ?>
+                        Free
+                        <?php endif; ?>
+                    </p>
+                    
+                    <div class="form-group">
+                        <label for="changeImageImageURL">Choose a breed</label>
+                        <select name="new_breed" class="form-control" id="registerBreedBreedID" required>
+                            <?php foreach($changeableBreeds as $breed): ?>
+                            <option value="<?php echo $breed->id; ?>" <?php echo Input::old('new_breed') == $breed->id ? 'selected' : ''; ?>>
+                                <?php echo e($breed->name); ?>
+
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" name="register_breed">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="send-to-player" tabindex="-1" role="dialog" aria-labelledby="send-to-player-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" method="post" action="<?php echo route('dog/lend', $dog->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="sendToPlayerUserId">Send to</label>
+
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-addon">#</span>
+                            <input type="text" name="user" class="form-control" id="sendToPlayerUserId" value="" placeholder="Player ID" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sendToPlayerLendType">For how long?</label>
+
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-addon">#</span>
+                            <select name="length_of_lending_period" class="form-control" id="sendToPlayerLendType" required>
+                                <?php foreach($lendingOptions as $id => $option): ?>
+                                <option value="<?php echo $id; ?>" <?php echo Input::old('length_of_lending_period') ? 'selected' : ''; ?>><?php echo $option; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" name="send_to_user">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php /* Modals */ ?>
+<?php $__env->startSection('modals'); ?>
+@parent
+<!-- Beginners luck modal -->
+<?php echo $__env->make('frontend/modals/beginners_luck', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php /* JS assets */ ?>
+<?php $__env->startSection('js_assets'); ?>
+@parent
+<script type="text/javascript" src="<?php echo asset('assets/js/dog.js'); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

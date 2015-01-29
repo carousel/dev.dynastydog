@@ -1,0 +1,557 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Edit Breed</h1>
+</div>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/breed/edit', $breed->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-breed-id" class="col-sm-2 control-label">ID</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+                <?php echo $breed->id; ?>
+
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-breed-name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" name="name" class="form-control" id="cp-breed-name" value="<?php echo e(Input::old('name', $breed->name)); ?>" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-breed-description" class="col-sm-2 control-label">Description</label>
+        <div class="col-sm-10">
+            <textarea name="description" class="form-control" id="cp-breed-description" rows="3" placeholder="Optional"><?php echo e(Input::old('description', $breed->description)); ?></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-breed-imageurl" class="col-sm-2 control-label">Image Filename</label>
+        <div class="col-sm-10">
+            <input type="text" name="image_filename" class="form-control" id="cp-breed-imageurl" value="<?php echo e(Input::old('image_filename', $breed->image_url)); ?>" maxlength="255" placeholder="eg. german_shepherd_dog" required />
+            <span class="help-block well well-sm alert-info">
+                <strong>Full URL:</strong> <em><?php echo asset($breed->getImageUrl()); ?></em>
+            </span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="cp-breed-userid" class="col-sm-4 control-label">User ID</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="text" name="user_id" class="form-control" id="cp-breed-userid" value="<?php echo e(Input::get('user_id', $breed->creator_id)); ?>" maxlength="32" placeholder="Optional" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="cp-breed-dogid" class="col-sm-4 control-label">Dog ID</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="text" name="dog_id" class="form-control" id="cp-breed-dogid" value="<?php echo e(Input::get('dog_id', $breed->originator_id)); ?>" maxlength="10" placeholder="Optional" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="cp-breed-active" class="col-sm-4 control-label">Active?</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label for="cp-breed-active">
+                            <input type="checkbox" name="active" value="yes" id="cp-breed-active" <?php echo (Input::old('active', ($breed->active ? 'yes' : 'no')) == 'yes') ? 'checked' : ''; ?>/> Yes
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="cp-breed-importable" class="col-sm-4 control-label">Importable?</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label for="cp-breed-importable">
+                            <input type="checkbox" name="importable" value="yes" id="cp-breed-importable" <?php echo (Input::old('importable', ($breed->importable ? 'yes' : 'no')) == 'yes') ? 'checked' : ''; ?>/> Yes
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="cp-breed-extinctable" class="col-sm-4 control-label">Extinctable?</label>
+                <div class="col-sm-8">
+                    <div class="checkbox">
+                        <label for="cp-breed-extinctable">
+                            <input type="checkbox" name="extinctable" value="yes" id="cp-breed-extinctable"<?php echo (Input::old('extinctable', ($breed->extinctable ? 'yes' : 'no')) == 'yes') ? 'checked' : ''; ?> /> Yes
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <a href="<?php echo route('admin/breeds/breed/delete', $breed->id); ?>" name="delete_breed" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this breed?');">Delete</a>
+            <a href="<?php echo route('admin/breeds/breed/clone', $breed->id); ?>" name="clone_breed" class="btn btn-default" onclick="return confirm('Are you sure you want to clone this breed?');">
+                <i class="fa fa-fw fa-code-fork"></i> Clone
+            </a>
+            <button type="submit" name="edit_breed" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<h2>
+    <?php if($breed->hasGenotypes()): ?>
+    <i class="fa fa-check text-success"></i>
+    <?php else: ?>
+    <i class="fa fa-times text-danger"></i>
+    <?php endif; ?>
+
+    Genotypes
+
+    <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#breed_genotypes">
+        <i class="fa fa-plus"></i>
+    </button>
+</h2>
+
+<div id="breed_genotypes" class="collapse <?php echo Input::old('edit_breed_genotypes') ? 'in' : ''; ?>">
+    <form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/breed/genotypes/update', $breed->id); ?>">
+        <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+        <div class="row">
+            <?php foreach($loci as $locus): ?>
+            <div class="form-group col-sm-6">
+                <div class="container-fluid">
+                    <div class="row">
+                        <?php if($breed->genotypes()->where('genotypes.locus_id', $locus->id)->wherePivot('frequency', '>', 0)->count() > 0): ?>
+                        <label for="breedGenotypes<?php echo $locus->id; ?>" class="col-sm-4 control-label text-success">
+                            <i class="fa fa-check"></i> <?php echo $locus->name; ?>
+
+                        </label>
+                        <?php else: ?>
+                        <label for="breedGenotypes<?php echo $locus->id; ?>" class="col-sm-4 control-label text-danger">
+                            <i class="fa fa-times"></i> <?php echo $locus->name; ?>
+
+                        </label>
+                        <?php endif; ?>
+
+                        <div class="col-sm-8">
+                            <div class="row">
+                                <?php foreach($breed->genotypes()->where('genotypes.locus_id', $locus->id)->orderByAlleles()->get() as $genotype): ?>
+                                <div class="col-sm-4">
+                                    <p class="form-control-static">
+                                        <a href="<?php echo route('admin/genetics/genotype/edit', $genotype->id); ?>"><?php echo $genotype->toSymbol(); ?></a>
+                                    </p>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-addon" title="Frequency"><i class="fa fa-bar-chart-o"></i></span>
+                                        <input type="text" name="frequency[<?php echo $genotype->id; ?>]" class="form-control" id="breedGenotypeFrequency<?php echo $genotype->id; ?>" value="<?php echo $genotype->pivot->frequency; ?>" maxlength="3">
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2 text-right">
+                <button type="submit" name="edit_breed_genotypes" value="edit_breed_genotypes" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<hr />
+
+<h2>
+    <?php if($breed->hasCharacteristics()): ?>
+    <i class="fa fa-check text-success"></i>
+    <?php else: ?>
+    <i class="fa fa-times text-danger"></i>
+    <?php endif; ?>
+
+    Characteristics
+
+    <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#breed_characteristics">
+        <i class="fa fa-plus"></i>
+    </button>
+</h2>
+
+<div id="breed_characteristics" class="collapse <?php echo (Input::old('create_breed_characteristic') or Input::old('edit_breed_characteristic')) ? 'in' : ''; ?>">
+    <form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/breed/characteristic/create', $breed->id); ?>">
+        <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+        <div class="form-group">
+            <label for="breedCharacteristicId" class="col-sm-2 control-label">Characteristic</label>
+            <div class="col-sm-10">
+                <select name="characteristics[]" class="form-control" id="breedCharacteristicId" size="8" multiple required>
+                    <?php foreach($characteristicCategories as $category): ?>
+                    <optgroup label="<?php echo $category->parent->name; ?>: <?php echo $category->name; ?>">
+                        <?php foreach($category->characteristics as $characteristic): ?>
+                        <option value="<?php echo $characteristic->id; ?>" <?php echo in_array($characteristic->id, (array)Input::old('characteristics')) ? 'selected' : ''; ?>><?php echo $characteristic->name; ?></option>
+                        <?php endforeach; ?>
+                    </optgroup>
+                    <?php endforeach; ?>
+
+                    <?php if($characteristicCategories->isEmpty()): ?>
+                    <option value="">No characteritics available</option>
+                    <?php endif; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="breedCharacteristicActive" class="col-sm-4 control-label">Active?</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox">
+                            <label for="breedCharacteristicActive">
+                                <input type="checkbox" name="active_characteristic" value="yes" id="breedCharacteristicActive" <?php echo (Input::old('active_characteristic') == 'yes') ? 'checked' : ''; ?>/> Yes
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="breedCharacteristicHide" class="col-sm-4 control-label">Hide?</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox">
+                            <label for="breedCharacteristicHide">
+                                <input type="checkbox" name="hide_characteristic" value="yes" id="breedCharacteristicHide" <?php echo (Input::old('hide_characteristic') == 'yes') ? 'checked' : ''; ?>/> Yes
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2 text-right">
+                <button type="submit" name="create_breed_characteristic" value="create_breed_characteristic" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="well well-sm">
+        <a id="chlist"><!-- Empty --></a>
+        <?php foreach($breedCharacteristics as $breedCharacteristic): ?>
+        <a class="btn btn-sm btn-info" href="#ch<?php echo $breedCharacteristic->id; ?>"><?php echo $breedCharacteristic->characteristic->name; ?></a>
+        <?php endforeach; ?>
+    </div>
+
+    <?php foreach($breedCharacteristics as $breedCharacteristic): ?>
+    <div class="well well-sm">
+        <a id="ch<?php echo $breedCharacteristic->id; ?>"><!-- Empty --></a>
+        <h3>
+            <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#breed_characteristic<?php echo $breedCharacteristic->id; ?>">
+                <i class="fa fa-plus"></i>
+            </button>
+            <?php echo $breedCharacteristic->characteristic->name; ?>
+
+            <a class="btn btn-xs" href="<?php echo route('admin/characteristics/characteristic/edit', $breedCharacteristic->characteristic->id); ?>"><i class="fa fa-external-link"></i></a>
+            <a class="pull-right text-muted" href="#chlist"><i class="fa fa-arrow-up"></i></a>
+        </h3>
+        <div id="breed_characteristic<?php echo $breedCharacteristic->id; ?>" class="collapse">
+            <form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/breeds/breed/characteristic/update', $breedCharacteristic->id); ?>">
+                <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Active" class="col-sm-4 control-label">Active?</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox">
+                                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Active">
+                                        <input type="checkbox" name="existing_active_characteristic" value="yes" id="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Active" <?php echo (($breedCharacteristic->active ? 'yes' : 'no') == 'yes') ? 'checked' : ''; ?>/> Yes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Hide" class="col-sm-4 control-label">Hide?</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox">
+                                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Hide">
+                                        <input type="checkbox" name="existing_hide_characteristic" value="yes" id="breedCharacteristic<?php echo $breedCharacteristic->id; ?>Hide" <?php echo (($breedCharacteristic->hide ? 'yes' : 'no') == 'yes') ? 'checked' : ''; ?>/> Yes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php if($breedCharacteristic->isGenetic() and ($breedCharacteristic->characteristic->genotypesCanBeRevealed() or $breedCharacteristic->characteristic->phenotypesCanBeRevealed())): ?>
+                <hr />
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <h4>Genetic Profile</h4>
+                    </div>
+                </div>
+
+                <?php if($breedCharacteristic->characteristic->phenotypesCanBeRevealed()): ?>
+                <div class="form-group">
+                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>GeneticPhenotypesCanBeKnown" class="col-sm-2 control-label">Age to Reveale Phenotypes</label>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_age_to_reveal_phenotypes" class="form-control" value="<?php echo e($breedCharacteristic->min_age_to_reveal_phenotypes); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_age_to_reveal_phenotypes" class="form-control" value="<?php echo e($breedCharacteristic->max_age_to_reveal_phenotypes); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if($breedCharacteristic->characteristic->genotypesCanBeRevealed()): ?>
+                <div class="form-group">
+                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>GeneticGenotypesCanBeKnown" class="col-sm-2 control-label">Age to Reveal Genotypes</label>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_age_to_reveal_genotypes" class="form-control" value="<?php echo e($breedCharacteristic->min_age_to_reveal_genotypes); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_age_to_reveal_genotypes" class="form-control" value="<?php echo e($breedCharacteristic->max_age_to_reveal_genotypes); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php endif; ?>
+
+                <?php if($breedCharacteristic->characteristic->isRanged()): ?>
+                <hr />
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <h4>Range Profile</h4>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>RangeValue" class="col-sm-2 control-label">Value</label>
+                    <div class="col-sm-2 text-center">
+                        <p class="form-control-static"><big><span class="label label-danger">Female</span></big></p>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_female_ranged_value" class="form-control" id="breedCharacteristic<?php echo $breedCharacteristic->id; ?>RangeValue" value="<?php echo e($breedCharacteristic->min_female_ranged_value); ?>" maxlength="10" required />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_female_ranged_value" class="form-control" value="<?php echo e($breedCharacteristic->max_female_ranged_value); ?>" maxlength="10" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2 col-sm-offset-2 text-center">
+                        <p class="form-control-static"><big><span class="label label-info">Male</span></big></p>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_male_ranged_value" class="form-control" id="breedCharacteristic<?php echo $breedCharacteristic->id; ?>RangeValue" value="<?php echo e($breedCharacteristic->min_male_ranged_value); ?>" maxlength="10" required />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_male_ranged_value" class="form-control" value="<?php echo e($breedCharacteristic->max_male_ranged_value); ?>" maxlength="10" required />
+                        </div>
+                    </div>
+                </div>
+
+                <?php if($breedCharacteristic->characteristic->rangedValueCanBeRevealed()): ?>
+                <div class="form-group">
+                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>RangeValueCanBeKnown" class="col-sm-2 control-label">Age to Reveal Ranged Value</label>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_age_to_reveal_ranged_value" class="form-control" value="<?php echo e($breedCharacteristic->min_age_to_reveal_ranged_value); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_age_to_reveal_ranged_value" class="form-control" value="<?php echo e($breedCharacteristic->max_age_to_reveal_ranged_value); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if($breedCharacteristic->characteristic->hasRangedGrowth()): ?>
+                <div class="form-group">
+                    <label for="breedCharacteristic<?php echo $breedCharacteristic->id; ?>RangeGrowth" class="col-sm-2 control-label">Age for Ranged Value to Grow</label>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Minimum</span>
+                            <input type="text" name="minimum_age_to_stop_growing" class="form-control" value="<?php echo e($breedCharacteristic->min_age_to_stop_growing); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Maximum</span>
+                            <input type="text" name="maximum_age_to_stop_growing" class="form-control" value="<?php echo e($breedCharacteristic->max_age_to_stop_growing); ?>" maxlength="5" />
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                <?php endif; ?>
+
+                <?php if($breedCharacteristic->hasSeverities()): ?>
+                <hr />
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <h4>Severities</h4>
+                    </div>
+                </div>
+
+                <?php foreach($breedCharacteristic->severities as $breedCharacteristicSeverity): ?>
+                <div class="panel panel-info">
+                    <div class="panel-heading clearfix">
+                        <h5 class="panel-title"><?php echo $breedCharacteristicSeverity->characteristicSeverity->min_value; ?> - <?php echo $breedCharacteristicSeverity->characteristicSeverity->max_value; ?></h5>
+                    </div>
+
+                    <div class="panel-body">
+                        <?php if($breedCharacteristicSeverity->characteristicSeverity->canBeExpressed()): ?>
+                        <div class="form-group">
+                            <label for="breedCharacteristicHealthSeverity<?php echo $breedCharacteristicSeverity->id; ?>OnsetAge" class="col-sm-2 control-label">Age to Express</label>
+                            <div class="col-sm-5">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon">Minimum</span>
+                                    <input type="text" name="breed_characteristic_severity[<?php echo $breedCharacteristicSeverity->id; ?>][minimum_age_to_express]" class="form-control" id="breedCharacteristicHealthSeverity<?php echo $breedCharacteristicSeverity->id; ?>OnsetAge" value="<?php echo e($breedCharacteristicSeverity->min_age_to_express); ?>" maxlength="5" required />
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon">Maximum</span>
+                                    <input type="text" name="breed_characteristic_severity[<?php echo $breedCharacteristicSeverity->id; ?>][maximum_age_to_express]" class="form-control" value="<?php echo e($breedCharacteristicSeverity->max_age_to_express); ?>" maxlength="5" required />
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php if($breedCharacteristicSeverity->characteristicSeverity->valueCanBeRevealed()): ?>
+                        <div class="form-group">
+                            <label for="breedCharacteristicHealthSeverity<?php echo $breedCharacteristicSeverity->id; ?>ValueCanBeKnown" class="col-sm-2 control-label">Age to Reveal Severity Value</label>
+                            <div class="col-sm-5">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon">Minimum</span>
+                                    <input type="text" name="breed_characteristic_severity[<?php echo $breedCharacteristicSeverity->id; ?>][minimum_age_to_reveal_value]" class="form-control" value="<?php echo e($breedCharacteristicSeverity->min_age_to_reveal_value); ?>" maxlength="5" />
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon">Maximum</span>
+                                    <input type="text" name="breed_characteristic_severity[<?php echo $breedCharacteristicSeverity->id; ?>][maximum_age_to_reveal_value]" class="form-control" value="<?php echo e($breedCharacteristicSeverity->max_age_to_reveal_value); ?>" maxlength="5" />
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <?php foreach($breedCharacteristicSeverity->symptoms() as $breedCharacteristicSeveritySymptom): ?>
+                        <div class="well well-sm">
+                            <h5>
+                                <strong><?php echo $breedCharacteristicSeveritySymptom->name; ?></strong>
+
+                                <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#breed_characteristic_health_severity_health_symptom_<?php echo $breedCharacteristicSeveritySymptom->id; ?>">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </h5>
+
+                            <section id="breed_characteristic_health_severity_health_symptom_<?php echo $breedCharacteristicSeveritySymptom->id; ?>" class="collapse">
+                                <div class="form-group">
+                                    <label for="characteristicHealthSeverityHealthSymptom<?php echo $breedCharacteristicSeveritySymptom->id; ?>OffsetOnsetAge" class="col-sm-2 control-label">Offset Age to Express</label>
+                                    <div class="col-sm-5">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-addon">Minimum</span>
+                                            <input type="text" name="breed_characteristic_severity_symptom[<?php echo $breedCharacteristicSeveritySymptom->id; ?>][minimum_offset_age_to_express]" class="form-control" id="characteristicHealthSeverityHealthSymptom<?php echo $breedCharacteristicSeveritySymptom->id; ?>OffsetOnsetAge" value="<?php echo e($breedCharacteristicSeveritySymptom->min_offset_age_to_express); ?>" maxlength="5" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-5">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-addon">Maximum</span>
+                                            <input type="text" name="breed_characteristic_severity_symptom[<?php echo $breedCharacteristicSeveritySymptom->id; ?>][maximum_offset_age_to_express]" class="form-control" value="<?php echo e($breedCharacteristicSeveritySymptom->max_offset_age_to_express); ?>" maxlength="5" required />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="characteristicHealthSeverityHealthSymptom<?php echo $breedCharacteristicSeveritySymptom->id; ?>Lethal" class="col-sm-2 control-label">Lethal?</label>
+                                    <div class="col-sm-7">
+                                        <div class="checkbox">
+                                            <label for="characteristicHealthSeverityHealthSymptom<?php echo $breedCharacteristicSeveritySymptom->id; ?>Lethal">
+                                                <input type="checkbox" name="breed_characteristic_severity_symptom[<?php echo $breedCharacteristicSeveritySymptom->id; ?>][lethal]" value="yes" id="characteristicHealthSeverityHealthSymptom<?php echo $breedCharacteristicSeveritySymptom->id; ?>Lethal" <?php echo $breedCharacteristicSeveritySymptom->lethal ? 'checked' : ''; ?> />
+                                                Yes
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                <?php endif; ?>
+
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2 text-right">
+                        <a href="<?php echo route('admin/breeds/breed/characteristic/delete', $breedCharacteristic->id); ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this breed characteristi?');">Delete</a>
+                        <button type="submit" name="edit_breed_characteristic" value="edit_breed_characteristic" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,45 @@
+<?php echo $__env->make('frontend/layouts/_header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="main row hidden-md hidden-lg">
+    <div class="content col-sm-12 col-sx-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+
+                <!-- Notifications -->
+                <?php echo $__env->make('frontend/notifications/basic', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+                <?php if( ! is_null($currentUser)): ?>
+                    <a class="advance-turn-button btn btn-success btn-lg btn-block" href="<?php echo route('user/advance_turn'); ?>" data-loading-text="<i class='fa fa-cog fa-spin'></i> Advancing..." onclick="return confirm('Are you sure you want to advance your turn?');">
+                        <i class="fa fa-level-up"></i> Next Turn
+                    </a>
+
+                    <p class="text-center">
+                        <?php echo ($currentUsersTotalWorkedDogs = $currentUser->dogs()->whereWorked()->whereAlive()->count()); ?>/<?php echo Config::get('game.dog.advanced_turn_worked_limit'); ?> Dogs Worked <a data-toggle="tooltip" data-placement="top" title="" data-original-title="One turn will go through up to <?php echo Config::get('game.dog.advanced_turn_worked_limit'); ?> worked <?php echo Str::plural('dog', Config::get('game.dog.advanced_turn_worked_limit')); ?> at once."><i class="fa fa-question-circle"></i></a>
+                    </p>
+
+                    <?php if($currentUser->inTutorial()): ?>
+                        <button class="btn btn-danger btn-lg btn-block" data-toggle="modal" data-target="#tutorial-current-stage">
+                            View Current Tutorial Step
+                        </button>
+                    <?php endif; ?>
+
+                    <br />
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main row">
+    <div class="content col-md-9 col-sm-12 col-sx-12" id="content">
+        <?php echo $__env->make('frontend/layouts/_content', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+    </div>
+
+    <?php $__env->startSection('sidebar'); ?>
+    <div class="sidebar col-md-3 col-sm-12 col-sx-12" id="main-sidebar">
+        <?php echo $__env->make('frontend/layouts/_sidebar', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+    </div>
+    <?php echo $__env->yieldSection(); ?>
+</div>
+
+<?php echo $__env->make('frontend/layouts/_footer', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,118 @@
+<?php if($currentUser->hasBreedersPrize()): ?>
+<div class="alert alert-info text-center">
+    <strong>Your Breeder's Prize expires in <?php echo strtolower(carbon_intervalforhumans($currentUser->breeders_prize_until)); ?>.</strong>
+</div>
+<?php endif; ?>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <h3 class="panel-title">
+                    Community Challenge <?php echo is_null($communityChallenge) ? '' : '#'.$communityChallenge->id; ?>
+
+                </h3>
+            </div>
+            <div class="panel-body">
+                <?php if(is_null($communityChallenge)): ?>
+                <p class="text-center">There is no Community Challenge running at this time. Please come back later.</p>
+                <?php else: ?>
+                <p>Obtain a dog with the following characteristics:</p>
+
+                <div class="callout callout-info">
+                    <ul class="list-unstyled no-margin">
+                        <?php foreach($communityChallenge->characteristics as $communityChallengeCharacteristic): ?>
+                        <li>
+                            <strong><?php echo $communityChallengeCharacteristic->characteristic->name; ?>:</strong>
+                            <?php echo $communityChallengeCharacteristic->getGoalString(); ?>
+
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+
+                <form role="form" method="post" action="<?php echo route('goals/community/enter', $communityChallenge->id); ?>">
+                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                    <div class="form-group">
+                        <label>Dog Must be Healthy?</label>
+                        <p class="form-control-static">
+                            <?php echo $communityChallenge->onlyAllowHealthyDogs() ? 'Yes' : 'No'; ?>
+
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Dog:</label>
+                        <select name="dog" class="form-control">
+                            <?php foreach($kennelGroups as $kennelGroup): ?>
+                            <optgroup label="<?php echo e($kennelGroup->name); ?>">
+                                <?php foreach($kennelGroup->dogs as $dog): ?>
+                                <option value="<?php echo $dog->id; ?>"><?php echo e($dog->nameplate()); ?></option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                            <?php endforeach; ?>
+
+                            <?php if( ! count($kennelGroups)): ?>
+                            <option value="">No dogs available</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <button type="submit" name="enter_community_challenge" class="btn btn-success btn-block">
+                        Submit for Judging
+                    </button>
+                </form><br />
+
+                <p class="text-center">Challenge ends <?php echo $communityChallenge->end_date->format('F j, Y'); ?> at 11:59 PM. You must submit your entries before that time.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if( ! is_null($communityChallenge)): ?>
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <h3 class="panel-title">
+                    Current Entries
+                </h3>
+            </div>
+            <div class="panel-body">
+                <?php if($communityChallenge->entries->count() > 0): ?>
+                <ol>
+                    <?php foreach($communityChallenge->entries as $entry): ?>
+                    <li><?php echo is_null($entry->dog) ? '<em>Unknown</em>' : $entry->dog->linkedNameplate(); ?></li>
+                    <?php endforeach; ?>
+                </ol>
+                <?php else: ?>
+                <p><em>No entries</em></p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <h3 class="panel-title">
+                    Challenge Rules and Rewards
+                </h3>
+            </div>
+            <div class="panel-body">
+                <ol>
+                    <li>Dogs are judged based on the number of different players listed as "Breeder" in the last 10 generations of the dog's pedigree. The more players participate in the breeding of a dog that fulfills the current challenge requirements, the higher your chance of winning as a team.</li>
+                    <li>Every player that is listed as a "Breeder" in the winning dog's pedigree (up to 10 generations only) will get to select either the Breeder's Prize or 20 Credits. Even if you have bred multiple dogs in the winner's pedigree, you only receive one prize. The Breeder's Prize is the ability to view dogs' pedigrees to 10 generations instead of the usual 4. This ability lasts for 30 days.</li>
+                    <li>You can submit as many dogs as you like into each challenge, provided they all meet the challenge requirements, but you can only win once per challenge. Once a dog is submitted, they can still win even if they are pet homed or die or are given away before the end of the challenge.</li>
+                    <li>Dogs must have all the required characteristics revealed and must match all of them to be accepted as an entry.</li>
+                    <li>If the "Dog must be healthy" status is set to Yes, that means that dogs must have no Current Health Problems at the time of submission.  If it is set to No, then a dog's health doesn't matter in this challenge.</li>
+                    <li>Good luck, cooperate, and have fun!</li>
+                </ol>
+
+                <?php if($currentUser->hasUnclaimedCommunityChallengePrize()): ?>
+                <p class="text-center">
+                    <a href="<?php echo route('goals/community/prizes'); ?>" class="btn btn-primary">Claim Challenge Prize</a>
+                </p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>

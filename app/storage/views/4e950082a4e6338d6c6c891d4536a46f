@@ -1,0 +1,62 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<?php echo $__env->make('frontend/forums/_navigation', ['newTopicForum' => null], array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="page-header">
+    <h1>Your Topics</h1>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Topic</th>
+            <th>Forum</th>
+            <th>Date</th>
+            <th>Last Activity</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($topics as $topic): ?>
+        <tr>
+            <td><strong><a href="<?php echo route('forums/topic', $topic->id); ?>"><?php echo e($topic->title); ?></a></strong></td>
+            <td><a href="<?php echo route('forums/forum', $topic->forum->id); ?>"><?php echo $topic->forum->title; ?></a></td>
+            <td><?php echo $topic->created_at->format('F jS, Y g:i A'); ?></td>
+            <td>
+                <?php if( ! is_null($lastPost = $topic->lastPost())): ?>
+                <?php echo $lastPost->created_at->format('F jS, Y g:i A'); ?>
+
+                <br />
+                Last post by 
+                <?php if( ! is_null($lastPost->author)): ?>
+                <a href="<?php echo route('user/profile', $lastPost->author->id); ?>">
+                    <?php if($lastPost->author->isAdministrator()): ?>
+                    <span class="text-success"><?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)</span>
+                    <?php else: ?>
+                    <?php echo e($lastPost->author->display_name); ?> (#<?php echo $lastPost->author->id; ?>)
+                    <?php endif; ?>
+                </a>
+                <?php else: ?>
+                <em>Deleted</em>
+                <?php endif; ?>
+                <?php else: ?>
+                No Recent Activity
+                <?php endif; ?>
+                </a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if( ! count($topics)): ?>
+        <tr>
+            <td colspan="4">You have not created any topics.</td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

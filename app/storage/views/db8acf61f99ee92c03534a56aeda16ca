@@ -1,0 +1,33 @@
+<?php echo $__env->make('frontend/layouts/_header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+<div class="main row hidden-md hidden-lg">
+    <div class="content col-sm-12 col-sx-12">
+        <div class="panel panel-default no-margin">
+            <div class="panel-body">
+                <!-- Notifications -->
+                <?php echo $__env->make('frontend/notifications/basic', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+
+                <br />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main row">
+    <div class="content col-md-12" id="content">
+        <div class="panel panel-default">
+            <div class="panel-body">
+
+                <div class="hidden-sm hidden-xs">
+                    <!-- Notifications -->
+                    <?php echo $__env->make('frontend/notifications/basic', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+                </div>
+
+                <!-- Content -->
+                <?php echo $__env->yieldContent('content'); ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php echo $__env->make('frontend/layouts/_footer', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

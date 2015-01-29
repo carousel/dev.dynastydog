@@ -1,0 +1,43 @@
+<div class="row">
+    <div class="col-sm-4 text-center">
+        <section class="breakable well well-sm">
+            <?php if( ! is_null($author)): ?>
+            <a href="<?php echo route('user/profile', $author->id); ?>">
+                <?php if($author->isAdministrator()): ?>
+                <span class="text-success"><?php echo e($author->nameplate()); ?></span>
+                <?php else: ?>
+                <?php echo e($author->nameplate()); ?>
+
+                <?php endif; ?>
+            </a>
+            <br />
+            <?php if($author->hasAvatar()): ?>
+            <img src="<?php echo e($author->avatar); ?>" class="img-responsive center-block" alt="Avatar" />
+            <?php endif; ?>
+            <?php else: ?>
+            <em>Deleted</em>
+            <?php endif; ?>
+            
+            <em><?php echo $post->created_at->format('F jS, Y g:i A'); ?></em>
+        </section>
+    </div>
+    <div class="col-sm-8">
+        <section class="breakable ">
+            <?php echo nl2br($post->body); ?>
+
+        </section>
+
+        <?php if( ! is_null($editor)): ?>
+        <p class="text-right">
+            <small><em>Last edited by <a href="<?php echo route('user/profile', $editor->id); ?>">
+                <?php if($editor->isAdministrator()): ?>
+                <span class="text-success"><?php echo e($editor->nameplate()); ?></span>
+                <?php else: ?>
+                <?php echo e($editor->nameplate()); ?>
+
+                <?php endif; ?>
+            </a></em></small>
+        </p>
+        <?php endif; ?>
+    </div>
+</div>

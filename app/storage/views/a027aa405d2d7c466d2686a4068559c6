@@ -1,0 +1,11 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<h1 class="text-center"><?php echo $code; ?></h1>
+<h2 class="text-center">Oops! Something went wrong.</h2>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

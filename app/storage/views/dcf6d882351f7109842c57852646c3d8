@@ -1,0 +1,106 @@
+<div id="characteristic-profiles-<?php echo $characteristic->id; ?>" class="characteristic-profile">
+    <div class="form-group clearfix">
+        <label class="col-sm-2 control-label text-right">Specify:</label>
+        <div class="col-sm-10">
+            <?php if($characteristic->isGenetic()): ?>
+                <?php if( ! $phenotypes->isEmpty()): ?>
+                <div id="phenotypes-<?php echo $characteristic->id; ?>">
+                    <select name="ch[<?php echo $counter; ?>][ph][]" class="form-control input-xs" size="4" multiple>
+                        <?php foreach($phenotypes as $phenotype): ?>
+                        <option value="<?php echo $phenotype->id; ?>" <?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['ph']) and in_array($phenotype->id, $searchedCharacteristic['ph'])) ? 'selected' : ''; ?>>
+                            <?php echo $phenotype->name; ?>
+
+                        </option>
+                        <?php endforeach; ?>
+                    </select><br />
+                </div>
+                <?php endif; ?>
+
+                <?php if( ! $characteristic->hideGenotypes() and ! $loci->isEmpty()): ?>
+                    <?php if( ! $phenotypes->isEmpty()): ?>
+                    <span class="center-block label label-primary">or</span>
+                    <br />
+                    <?php endif; ?>
+
+                <div class="row" id="genotypes-<?php echo $characteristic->id; ?>">
+                    <?php foreach($loci as $locus): ?>
+                    <div class="col-xs-4 text-center">
+                        <strong><?php echo $locus->name; ?></strong>
+                        <select name="ch[<?php echo $counter; ?>][g][<?php echo $locus->id; ?>]" class="form-control input-xs">
+                            <option value=""></option>
+                            <?php foreach($locus->genotypes as $genotype): ?>
+                            <option value="<?php echo $genotype->id; ?>" <?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['g'][$locus->id]) and $genotype->id == $searchedCharacteristic['g'][$locus->id]) ? 'selected' : ''; ?>>
+                                <?php echo $genotype->toSymbol(); ?>
+
+                            </option>
+                            <?php endforeach; ?>
+                        </select><br />
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php if($characteristic->isRanged()): ?>
+            <div id="characteristics-<?php echo $counter; ?>-range-<?php echo $characteristic->id; ?>">
+                <p class="form-control-static">
+                    
+                    <div class="slider-<?php echo $counter; ?>">
+                        <div class="custom-female">
+                            <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->formatRangedValue($breedCharacteristic->min_female_ranged_value); ?>">
+                                <i class="fa fa-step-backward"></i>
+                            </a>
+
+                            <input name="ch[<?php echo $counter; ?>][r][f]" id="slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>-female" type="text" value="<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r']['f'])) ? $searchedCharacteristic['r']['f'] : $breedCharacteristic->min_female_ranged_value; ?>" data-slider-min="<?php echo round($breedCharacteristic->min_female_ranged_value); ?>" data-slider-max="<?php echo round($breedCharacteristic->max_female_ranged_value); ?>"/>
+
+                            <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->formatRangedValue($breedCharacteristic->max_female_ranged_value); ?>">
+                                <i class="fa fa-step-forward"></i>
+                            </a>
+                        </div>
+
+                        <div class="custom-male">
+                            <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->formatRangedValue($breedCharacteristic->min_male_ranged_value); ?>">
+                                <i class="fa fa-step-backward"></i>
+                            </a>
+
+                            <input name="ch[<?php echo $counter; ?>][r][m]" id="slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>-male" type="text" value="<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r']['m'])) ? $searchedCharacteristic['r']['m'] : $breedCharacteristic->min_male_ranged_value; ?>" data-slider-min="<?php echo round($breedCharacteristic->min_male_ranged_value); ?>" data-slider-max="<?php echo round($breedCharacteristic->max_male_ranged_value); ?>"/>
+
+                            <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->formatRangedValue($breedCharacteristic->max_male_ranged_value); ?>">
+                                <i class="fa fa-step-forward"></i>
+                            </a>
+                        </div>
+                   </div>
+                    <script type="text/javascript">
+                    $(document).ready(function(){
+                        var female_range = $("#slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>-female");
+                        var male_range = $("#slider-<?php echo $counter; ?>-<?php echo $characteristic->id; ?>-male");
+
+                        if ( ! female_range.parent().hasClass('slider')) {
+                            female_range.slider({
+                                step:1,
+                                value:<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r']['f'])) ? $searchedCharacteristic['r']['f'] : $breedCharacteristic->min_female_ranged_value; ?>,
+                                formater:function(value){
+                                    <?php echo $characteristic->jsFormatRangedSlider(); ?>
+
+                                }
+                            });
+                        }
+
+                        if ( ! male_range.parent().hasClass('slider')) {
+                            male_range.slider({
+                                step:1,
+                                value:<?php echo (isset($searchedCharacteristic) and isset($searchedCharacteristic['r']['m'])) ? $searchedCharacteristic['r']['m'] : $breedCharacteristic->min_male_ranged_value; ?>,
+                                formater:function(value){
+                                    <?php echo $characteristic->jsFormatRangedSlider(); ?>
+
+                                }
+                            });
+                        }
+                    });
+                    </script>
+                </p>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

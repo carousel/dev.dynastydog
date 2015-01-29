@@ -1,0 +1,105 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Inbox</h1>
+</div>
+
+<form role="form" method="post" action="<?php echo route('user/inbox/delete_conversations'); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Conversation With</th>
+                <th>Replies</th>
+                <th>Received</th>
+                <th class="text-right"><input type="checkbox" onclick="check_all(this, '[name$=&quot;ids[]&quot;]');" /></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($conversations as $conversation): ?>
+            <tr>
+                <td><a href="<?php echo route('user/inbox/conversation', $conversation->id); ?>"><?php echo e($conversation->subject); ?></a></td>
+                <td>
+                    <?php if($currentUser->id == $conversation->sender_id and ! is_null($conversation->receiver)): ?>
+                    <a href="<?php echo route('user/profile', $conversation->receiver->id); ?>">
+                        <?php echo e($conversation->receiver->display_name); ?> (#<?php echo $conversation->receiver->id; ?>)
+                    </a>
+                    <?php elseif($currentUser->id == $conversation->receiver_id and  ! is_null($conversation->sender)): ?>
+                    <a href="<?php echo route('user/profile', $conversation->sender->id); ?>">
+                        <?php echo e($conversation->sender->display_name); ?> (#<?php echo $conversation->sender->id; ?>)
+                    </a>
+                    <?php else: ?>
+                    <em>Deleted</em>
+                    <?php endif; ?>
+                </td>
+                <td><?php echo $conversation->replies; ?></td>
+                <td><?php echo $conversation->updated_at->format('F jS, Y g:i A'); ?></td>
+                <td class="text-right">
+                    <input type="checkbox" name="ids[]" value="<?php echo $conversation->id; ?>" />
+                </td>
+            </tr>
+            <?php endforeach; ?>
+
+            <?php if( ! count($conversations)): ?>
+            <tr>
+                <td colspan="5">No conversations to display</td>
+            </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <section class="text-right">
+        <button type="submit" name="delete_conversations" class="btn btn-danger">Delete</button>
+    </section>
+</form>
+
+<?php echo $conversations->links(); ?>
+
+
+<br />
+
+<a name="compose"><!-- Empty --></a>
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h3 class="panel-title">
+            <big>Compose Message</big>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form" method="post" action="<?php echo route('user/inbox/conversation/create'); ?>">
+            <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+            <div class="form-group">
+                <label for="sendTo" class="col-sm-2 control-label">Send To</label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                    <span class="input-group-addon">#</span>
+                    <input type="text" name="receiver_id" class="form-control" id="sendTo" value="<?php echo e(Input::old('receiver_id', Input::get('compose', null))); ?>" placeholder="Player ID" required />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="subject" class="col-sm-2 control-label">Subject</label>
+                <div class="col-sm-10">
+                    <input type="text" name="subject" class="form-control" id="subject" value="<?php echo e(Input::old('subject')); ?>" maxlength="255" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">
+                    <textarea name="body" class="form-control" rows="10" required><?php echo e(Input::old('body')); ?></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2 text-right">
+                    <button type="submit" name="start_conversation" class="btn btn-primary">Send Message</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

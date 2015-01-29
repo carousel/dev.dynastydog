@@ -1,0 +1,252 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Viewing Draft: <?php echo e($breedDraft->name); ?></h1>
+</div>
+
+<form role="form" method="post" action="<?php echo route('admin/breeds/breed/draft/reject', $breedDraft->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+    <div class="form-group">
+        <textarea name="rejection_reasons" class="form-control" placeholder="Reasons for rejection"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <a href="<?php echo route('admin/breeds/breed/draft/approve', $breedDraft->id); ?>" class="btn btn-block btn-lg btn-success" onclick="return confirm('Are you sure you want to APPROVE this breed?');">Approve Breed</a>
+        </div>
+        <div class="col-xs-6">
+            <button type="submit" name="reject_draft" class="btn btn-block btn-lg btn-danger" onclick="return confirm('Are you sure you want to REJECT this breed?');">Reject Breed</button>
+        </div>
+    </div>
+</form>
+
+<h2>General Information</h2>
+
+<div class="row">
+    <?php if($breedDraft->hasImage()): ?>
+    <div class="col-md-5">
+        <img src="<?php echo e(asset($breedDraft->getImageUrl())); ?>?<?php echo $breedDraft->updated_at; ?>" alt="Breed Image" title="Breed Image" />
+    </div>
+    <div class="col-md-7">
+    <?php else: ?>
+    <div class="col-md-12">
+    <?php endif; ?>
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Name:</strong>
+            </div>
+            <div class="col-md-9">
+                <?php echo e($breedDraft->name); ?>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Description:</strong>
+            </div>
+            <div class="col-md-9">
+                <?php if($breedDraft->hasDescription()): ?>
+                <?php echo e($breedDraft->description); ?>
+
+                <?php else: ?>
+                <em>No description</em>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Creator:</strong>
+            </div>
+            <div class="col-md-9">
+                <?php if(is_null($breedDraft->user)): ?>
+                <em>Unknown</em>
+                <?php else: ?>
+                <a href="<?php echo route('admin/users/user/edit', $breedDraft->user->id); ?>"><?php echo e($breedDraft->user->nameplate()); ?></a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Real?</strong>
+            </div>
+            <div class="col-md-9">
+                <?php echo $breedDraft->isOfficial() ? 'Yes' : 'No'; ?>
+
+            </div>
+        </div>
+
+        <?php if($breedDraft->isOfficial()): ?>
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Breed Health Disorders</strong>
+            </div>
+            <div class="col-md-9">
+                <?php if($breedDraft->hasHealthDisorders()): ?>
+                <?php echo e($breedDraft->health_disorders); ?>
+
+                <?php else: ?>
+                <em>No health disorders</em>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="row">
+            <div class="col-md-3 text-right">
+                <strong>Originator:</strong>
+            </div>
+            <div class="col-md-9">
+                <?php if(is_null($breedDraft->dog)): ?>
+                <em>Unknown</em>
+                <?php else: ?>
+                <a href="<?php echo route('admin/dogs/dog/edit', $breedDraft->dog->id); ?>"><?php echo e($breedDraft->dog->nameplate()); ?></a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<h2>Characteristics</h2>
+
+<div class="well well-sm text-justify">
+    <a id="chlist"><!-- Empty --></a>
+    <?php foreach($breedDraftCharacteristics as $breedDraftCharacteristic): ?>
+    <a class="btn btn-sm btn-info" href="#ch<?php echo $breedDraftCharacteristic->id; ?>" style="margin-bottom: 0.5em"><?php echo $breedDraftCharacteristic->characteristic->name; ?></a>
+    <?php endforeach; ?>
+</div>
+
+<?php foreach($breedDraftCharacteristics as $breedDraftCharacteristic): ?>
+<div class="well well-sm">
+    <a id="ch<?php echo $breedDraftCharacteristic->id; ?>"><!-- Empty --></a>
+    <h3>
+        <?php echo $breedDraftCharacteristic->characteristic->name; ?>
+
+        <button type="button" class="btn btn-info btn-xs" data-toggle="collapse" data-target="#draft_characteristic<?php echo $breedDraftCharacteristic->id; ?>">
+            <i class="fa fa-plus"></i>
+        </button>
+        <a class="pull-right text-muted" href="#chlist"><i class="fa fa-arrow-up"></i></a>
+    </h3>
+    <div id="draft_characteristic<?php echo $breedDraftCharacteristic->id; ?>" class="collapse">
+        <?php if($breedDraftCharacteristic->characteristic->isGenetic()): ?>
+            <?php if($breedDraftCharacteristic->characteristic->hasPhenotypes()): ?>
+            <div class="row">
+                <div class="col-xs-2 text-right">
+                    <strong>Phenotypes</strong>
+                </div>
+                <div class="col-xs-10">
+                    <ul>
+                        <?php foreach(($resultingPhenotypes = $breedDraftCharacteristic->possiblePhenotypes()->orderBy('name', 'asc')->get()) as $phenotype): ?>
+                        <li><?php echo $phenotype->name; ?></li>
+                        <?php endforeach; ?>
+                    
+                        <?php if($resultingPhenotypes->isEmpty()): ?>
+                        <li><em>None</em></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if( ! $breedDraftCharacteristic->characteristic->hideGenotypes()): ?>
+            <div class="row">
+                <div class="col-xs-2 text-right">
+                    <strong>Genotypes</strong>
+                </div>
+                <div class="col-xs-10">
+                    <ul>
+                        <?php foreach(($resultingLoci = $breedDraftCharacteristic->possibleLociWithGenotypes()->orderBy('name', 'asc')->get()) as $locus): ?>
+                        <li>
+                            <strong><?php echo $locus->name; ?>:</strong>
+                            <?php foreach($locus->genotypes as $genotype): ?>
+                            <?php echo $genotype->toSymbol(); ?>
+
+                            <?php endforeach; ?>
+
+                            <?php if($locus->genotypes->isEmpty()): ?>
+                            <em>None</em>
+                            <?php endif; ?>
+                        </li>
+                        <?php endforeach; ?>
+                    
+                        <?php if($resultingLoci->isEmpty()): ?>
+                        <li><em>None</em></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <?php if($breedDraftCharacteristic->characteristic->isRanged()): ?>
+        <div class="row">
+            <div class="col-xs-2 text-right">
+                <strong>Range</strong>
+            </div>
+            <div class="col-xs-10">
+                <ul>
+                    <?php if(Floats::compare($breedDraftCharacteristic->min_female_ranged_value, $breedDraftCharacteristic->min_male_ranged_value, '=') and Floats::compare($breedDraftCharacteristic->max_female_ranged_value, $breedDraftCharacteristic->max_male_ranged_value, '=')): ?>
+                        <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                            ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                            ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                            ->orderBy('min_ranged_value', 'asc')
+                            ->orderBy('max_ranged_value', 'asc')
+                            ->get()
+                        ) as $label): ?>
+                        <li><?php echo $label->name; ?></li>
+                        <?php endforeach; ?>
+
+                        <?php if($labels->isEmpty()): ?>
+                        <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <li>
+                            Bitches
+                            <ul>
+                                <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                                    ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                                    ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                                    ->orderBy('min_ranged_value', 'asc')
+                                    ->orderBy('max_ranged_value', 'asc')
+                                    ->get()
+                                ) as $label): ?>
+                                <li><?php echo $label->name; ?></li>
+                                <?php endforeach; ?>
+
+                                <?php if($labels->isEmpty()): ?>
+                                <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                                <?php endif; ?>
+                            </ul>
+                        </li>
+                        <li>
+                            Dogs
+                            <ul>
+                                <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                                    ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_male_ranged_value)
+                                    ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_male_ranged_value)
+                                    ->orderBy('min_ranged_value', 'asc')
+                                    ->orderBy('max_ranged_value', 'asc')
+                                    ->get()
+                                ) as $label): ?>
+                                <li><?php echo $label->name; ?></li>
+                                <?php endforeach; ?>
+
+                                <?php if($labels->isEmpty()): ?>
+                                <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_male_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_male_ranged_value, false); ?></li>
+                                <?php endif; ?>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endforeach; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

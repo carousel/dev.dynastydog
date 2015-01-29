@@ -1,0 +1,293 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1><?php echo e($kennel->kennel_name); ?></h1>
+</div>
+
+<?php if(strlen($kennel->kennel_description)): ?>
+<div class="well">
+    <?php echo $kennel->kennel_description; ?>
+
+</div>
+<?php endif; ?>
+
+<div class="panel panel-default">
+    <div class="panel-heading panel-nav clearfix">
+        <ul class="nav nav-pills nav-horizontal-scroll">
+            <?php foreach($kennelGroups as $kennelGroup): ?>
+            <li <?php echo $kennelGroup->id == $kennelGroups->first()->id ? 'class="active"' : ''; ?>><a href="#kennel-tab-<?php echo $kennelGroup->id; ?>" data-toggle="tab"><?php echo e($kennelGroup->name); ?></a></li>
+            <?php endforeach; ?>
+
+            <?php if($kennel->id == $currentUser->id): ?>
+            <li>
+                <?php if( ! $kennel->canAddNewKennelGroup()): ?>
+                <a href="#" data-toggle="modal" data-target="#new-group-cash-shop">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <?php else: ?>
+                <a href="<?php echo route('user/kennel/group/add'); ?>">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <?php endif; ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+
+    <!-- Tab panes -->
+    <div class="tab-content panel-body">
+        <?php foreach($kennelGroups as $kennelGroup): ?>
+        <div class="tab-pane <?php echo $kennelGroup->id == $kennelGroups->first()->id ? 'active' : ''; ?>" id="kennel-tab-<?php echo $kennelGroup->id; ?>">
+            <?php if($kennel->id == $currentUser->id): ?>
+            <p><input type="checkbox" name="check-all-ids[]" onclick="check_all(this, '[name$=&quot;ids[]&quot;]', false);"/> <strong>Toggle Selected Dogs in All Tabs</strong></p>
+            <?php endif; ?>
+
+            <?php if(strlen($kennelGroup->description)): ?>
+            <div class="well">
+                <?php echo $kennelGroup->description; ?>
+
+            </div>
+            <?php endif; ?>
+
+            <h3>Dogs</h3>
+            <div class="table-responsive">
+                <table class="table table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <th class="col-lg-1"><input type="checkbox" name="check-all-dog-ids[]" onclick="check_all(this, '[name=&quot;kennel-tab-<?php echo $kennelGroup->id; ?>-dog-ids[]&quot;]', false);"/></th>
+                            <?php endif; ?>
+                            <th>Name</th>
+                            <th class="col-lg-3">Breed</th>
+                            <th class="col-lg-2">Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach(($dogs = $kennelGroup->dogs()->whereMale()->whereAdult()->orderByKennelGroup($kennelGroup)->get()) as $dog): ?>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <td><input type="checkbox" name="kennel-tab-<?php echo $kennelGroup->id; ?>-dog-ids[]" class="kennel_dog_checkbox" value="<?php echo $dog->id; ?>" /></td>
+                            <?php endif; ?>
+                            <td>
+                                <a href="<?php echo route('dog/profile', $dog->id); ?>">
+                                    <span <?php echo $dog->isWorked() ? 'class="text-muted"' : ''; ?>><?php echo e($dog->fullName()); ?> (#<?php echo $dog->id; ?>)</span>
+                                </a>
+
+                                 <?php if( ! $kennelGroup->isCemetery()): ?>
+                                    <?php if($dog->isComplete()): ?>
+                                        <?php if( ! $dog->isSexuallyMature()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Not Sexually Mature"><i class="fa fa-leaf"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isForStud()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="For Stud"><i class="fa fa-fire"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isInfertile()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Infertile"><i class="fa fa-stethoscope"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isUnhealthy()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Unhealthy"><i class="fa fa-bug"></i></a>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                    <a data-toggle="tooltip" data-placement="top" title="Incomplete"><i class="fa fa-circle-o-notch"></i></a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php if($dog->hasLitter()): ?>
+                                <br />
+                                <small><em><?php echo is_null($dog->litter->sire) ? 'Unknown' : $dog->litter->sire->linkedNameplate(); ?> x <?php echo is_null($dog->litter->dam) ? 'Unknown' : $dog->litter->dam->linkedNameplate(); ?></em></small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if($dog->hasBreed()): ?>
+                                <?php echo e($dog->breed->name); ?>
+
+                                <?php else: ?>
+                                <em>Unregistered</em>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo $dog->getAgeInYearsAndMonths(true); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+
+                        <?php if($dogs->isEmpty()): ?>
+                        <tr>
+                            <td colspan="100%">No dogs to display</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Bitches</h3>
+            <div class="table-responsive">
+                <table class="table table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <th class="col-lg-1"><input type="checkbox" name="check-all-bitch-ids[]" onclick="check_all(this, '[name=&quot;kennel-tab-<?php echo $kennelGroup->id; ?>-bitch-ids[]&quot;]', false);" /></th>
+                            <?php endif; ?>
+                            <th >Name</th>
+                            <th class="col-lg-3">Breed</th>
+                            <th class="col-lg-2">Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach(($bitches = $kennelGroup->dogs()->whereFemale()->whereAdult()->orderByKennelGroup($kennelGroup)->get()) as $dog): ?>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <td><input type="checkbox" name="kennel-tab-<?php echo $kennelGroup->id; ?>-bitch-ids[]" class="kennel_dog_checkbox" value="<?php echo $dog->id; ?>"/></td>
+                            <?php endif; ?>
+                            <td>
+                                <a href="<?php echo route('dog/profile', $dog->id); ?>">
+                                    <span <?php echo $dog->isWorked() ? 'class="text-muted"' : ''; ?>><?php echo e($dog->fullName()); ?> (#<?php echo $dog->id; ?>)</span>
+                                </a>
+
+                                 <?php if( ! $kennelGroup->isCemetery()): ?>
+                                    <?php if($dog->isComplete()): ?>
+                                        <?php if( ! $dog->isSexuallyMature()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Not Sexually Mature"><i class="fa fa-leaf"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isExpecting()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Pregnant"><i class="fa fa-heart"></i></a>
+                                        <?php elseif($dog->isInHeat()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="In Heat"><i class="fa fa-heart-o"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isInfertile()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Infertile"><i class="fa fa-stethoscope"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isUnhealthy()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Unhealthy"><i class="fa fa-bug"></i></a>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                    <a data-toggle="tooltip" data-placement="top" title="Incomplete"><i class="fa fa-circle-o-notch"></i></a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php if($dog->hasLitter()): ?>
+                                <br />
+                                <small><em><?php echo is_null($dog->litter->sire) ? 'Unknown' : $dog->litter->sire->linkedNameplate(); ?> x <?php echo is_null($dog->litter->dam) ? 'Unknown' : $dog->litter->dam->linkedNameplate(); ?></em></small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if($dog->hasBreed()): ?>
+                                <?php echo e($dog->breed->name); ?>
+
+                                <?php else: ?>
+                                <em>Unregistered</em>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo $dog->getAgeInYearsAndMonths(true); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+
+                        <?php if($bitches->isEmpty()): ?>
+                        <tr>
+                            <td colspan="100%">No bitches to display</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Puppies</h3>
+            <div class="table-responsive">
+                <table class="table table-condensed table-striped">
+                    <thead>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <th class="col-lg-1"><input type="checkbox" name="check-all-puppy-ids[]" onclick="check_all(this, '[name=&quot;kennel-tab-<?php echo $kennelGroup->id; ?>-puppy-ids[]&quot;]', false);" /></th>
+                            <?php endif; ?>
+                            <th >Name</th>
+                            <th class="col-lg-3">Breed</th>
+                            <th class="col-lg-2">Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach(($puppies = $kennelGroup->dogs()->wherePuppy()->orderByKennelGroup($kennelGroup)->get()) as $dog): ?>
+                        <tr>
+                            <?php if($kennel->id == $currentUser->id): ?>
+                            <td><input type="checkbox" name="kennel-tab-<?php echo $kennelGroup->id; ?>-puppy-ids[]" class="kennel_dog_checkbox" value="<?php echo $dog->id; ?>"/></td>
+                            <?php endif; ?>
+                            <td>
+                                <a href="<?php echo route('dog/profile', $dog->id); ?>">
+                                    <span <?php echo $dog->isWorked() ? 'class="text-muted"' : ''; ?>><?php echo e($dog->fullName()); ?> (#<?php echo $dog->id; ?>)</span>
+                                </a>
+
+                                <?php if($dog->isMale()): ?>
+                                <a data-toggle="tooltip" data-placement="top" title="Male"><span class="text-male"><i class="fa fa-male"></i></span></a>
+                                <?php endif; ?>
+
+                                <?php if($dog->isFemale()): ?>
+                                <a data-toggle="tooltip" data-placement="top" title="Female"><span class="text-female"><i class="fa fa-female"></i></span></a>
+                                <?php endif; ?>
+
+                                 <?php if( ! $kennelGroup->isCemetery()): ?>
+                                    <?php if($dog->isComplete()): ?>
+                                        <?php if( ! $dog->isSexuallyMature()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Not Sexually Mature"><i class="fa fa-leaf"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isForStud()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="For Stud"><i class="fa fa-fire"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isExpecting()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Pregnant"><i class="fa fa-heart"></i></a>
+                                        <?php elseif($dog->isInHeat()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="In Heat"><i class="fa fa-heart-o"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isInfertile()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Infertile"><i class="fa fa-stethoscope"></i></a>
+                                        <?php endif; ?>
+
+                                        <?php if($dog->isUnhealthy()): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Unhealthy"><i class="fa fa-bug"></i></a>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                    <a data-toggle="tooltip" data-placement="top" title="Incomplete"><i class="fa fa-circle-o-notch"></i></a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php if($dog->hasLitter()): ?>
+                                <br />
+                                <small><em><?php echo is_null($dog->litter->sire) ? 'Unknown' : $dog->litter->sire->linkedNameplate(); ?> x <?php echo is_null($dog->litter->dam) ? 'Unknown' : $dog->litter->dam->linkedNameplate(); ?></em></small>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if($dog->hasBreed()): ?>
+                                <?php echo e($dog->breed->name); ?>
+
+                                <?php else: ?>
+                                <em>Unregistered</em>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo $dog->getAgeInYearsAndMonths(true); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+
+                        <?php if($puppies->isEmpty()): ?>
+                        <tr>
+                            <td colspan="100%">No puppies to display</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

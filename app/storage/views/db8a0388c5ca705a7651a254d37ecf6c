@@ -1,0 +1,91 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Existing Characteristics</h1>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <h3 class="panel-title">
+            <big>Search Options</big>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal" role="form" method="get" id="search-characteristics">
+            <div class="form-group">
+                <label for="search-characteristics-id" class="col-sm-2 control-label">ID</label>
+                <div class="col-sm-10">
+                    <input type="text" name="id" class="form-control" id="search-characteristics-id" value="<?php echo e(Input::get('id')); ?>" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="search-characteristics-name" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" name="name" class="form-control" id="search-characteristics-name" value="<?php echo e(Input::get('name')); ?>" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2 text-right">
+                    <button type="submit" name="search" value="characteristics" data-loading-text="<i class='fa fa-cog fa-spin'></i> Searching..." class="btn btn-primary btn-loading">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php echo $characteristics->appends(array_except(Input::all(), 'page'))->links(); ?>
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Percentage of Breeds</th>
+            <th>Category</th>
+            <th>Active?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($characteristics as $characteristic): ?>
+        <tr>
+            <td><a href="<?php echo route('admin/characteristics/characteristic/edit', $characteristic->id); ?>"><?php echo $characteristic->id; ?></a></td>
+            <td>
+                <a href="<?php echo route('admin/characteristics/characteristic/edit', $characteristic->id); ?>"><?php echo $characteristic->name; ?></a>
+                <?php if( ! $characteristic->isType(Characteristic::TYPE_NORMAL)): ?>
+                <span class="label label-info"><?php echo $characteristic->getType(); ?></span>
+                <?php endif; ?>
+            </td>
+            <td><?php echo round(($characteristic->breedCharacteristics()->count() / DB::table('breeds')->count()) * 100, 2); ?>%</td>
+            <td>
+                <?php if( ! is_null($characteristic->category)): ?>
+                    <a href="<?php echo route('admin/characteristics/category/edit', $characteristic->category->id); ?>"><?php echo $characteristic->category->name; ?></a>
+                    <?php if( ! is_null($characteristic->category->parent)): ?>
+                    <i class="fa fa-long-arrow-right"></i>
+                    <a href="<?php echo route('admin/characteristics/category/edit', $characteristic->category->parent->id); ?>"><?php echo $characteristic->category->parent->name; ?></a>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <em>None</em>
+                <?php endif; ?>
+            </td>
+            <td><?php echo $characteristic->isActive() ? '<span class="label label-success">Active</span>' : '<span class="label label-danger">Inactive</span>'; ?></td>
+        </tr>
+        <?php endforeach; ?>
+
+        <?php if($characteristics->isEmpty()): ?>
+        <tr>
+            <td colspan="3">No characteristics to display.</td>
+        </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+
+<?php echo $characteristics->appends(array_except(Input::all(), 'page'))->links(); ?>
+
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

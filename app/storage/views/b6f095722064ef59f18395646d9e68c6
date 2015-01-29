@@ -1,0 +1,42 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>New Characteristic Category</h1>
+</div>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/characteristics/category/create'); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-characteristiccategory-name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" name="name" class="form-control" id="cp-characteristiccategory-name" value="<?php echo e(Input::old('name')); ?>" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-characteristiccategory-parent" class="col-sm-2 control-label">Parent</label>
+        <div class="col-sm-10">
+            <select name="parent" class="form-control" id="cp-characteristiccategory-parent">
+                <option value="">None</option>
+                <?php foreach($parentCharacteristicCategories as $parentCharacteristicCategory): ?>
+                <option value="<?php echo $parentCharacteristicCategory->id; ?>" <?php echo (Input::old('parent') == $parentCharacteristicCategory->id) ? 'selected' : ''; ?>>
+                    <?php echo $parentCharacteristicCategory->name; ?>
+
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <button type="submit" name="create_characteristic_category" class="btn btn-primary">Create</button>
+        </div>
+    </div>
+</form>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

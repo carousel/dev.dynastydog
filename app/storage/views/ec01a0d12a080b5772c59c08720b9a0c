@@ -1,0 +1,11 @@
+<?php if($breadcrumbs): ?>
+    <ul class="breadcrumb">
+        <?php foreach($breadcrumbs as $breadcrumb): ?>
+            <?php if($breadcrumb->url && !$breadcrumb->last): ?>
+                <li><a href="<?php echo e($breadcrumb->url); ?>"><?php echo $breadcrumb->title; ?></a></li>
+            <?php else: ?>
+                <li class="active"><?php echo $breadcrumb->title; ?></li>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>

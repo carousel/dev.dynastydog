@@ -1,0 +1,254 @@
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <h1>Edit User</h1>
+</div>
+
+<h2>Access</h2>
+
+<div class="form-group">
+    <label for="cp-users-user-access-date" class="col-sm-2 control-label">IP Banned?</label>
+    <div class="col-sm-10">
+        <p class="form-control-static">
+            <?php if($user->isIpBanned()): ?>
+            <strong>Yes</strong>
+            <?php else: ?>
+            <em>No</em>
+            <?php endif; ?>
+        </p>
+
+        <span class="help-block">
+            Most recent IP is 
+            <?php if( ! is_null($user->last_login_ip)): ?>
+            <?php echo $user->last_login_ip; ?>
+
+            <?php elseif( ! is_null($user->created_ip)): ?>
+            <?php echo $user->last_login_ip; ?>
+
+            <?php else: ?>
+            <em>Unknown</em>
+            <?php endif; ?>
+        </span>
+    </div>
+</div>
+
+<?php if($user->isBanned()): ?>
+<div class="form-group">
+    <label for="cp-users-user-access-date" class="col-sm-2 control-label">Current Ban</label>
+    <div class="col-sm-10">
+        <p class="form-control-static">
+            <?php echo $user->banned_until->format('F j, Y g:i A'); ?>
+
+
+            <?php if($user->id != $currentUser->id): ?>
+            <a class="btn btn-warning btn-xs" href="<?php echo route('admin/users/user/unban', $user->id); ?>" onclick="return confirm('Are you sure you want to remove the ban from this user?');">Unban</a>
+            <?php endif; ?>
+        </p>
+        <span class="help-block"><?php echo e($user->ban_reason); ?></span>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($user->isBannedFromChat()): ?>
+<div class="form-group">
+    <label for="cp-users-user-access-date" class="col-sm-2 control-label">Current Chat Ban</label>
+    <div class="col-sm-10">
+        <p class="form-control-static">
+            <?php echo $user->chat_banned_until->format('F j, Y g:i A'); ?>
+
+
+            <?php if($user->id != $currentUser->id): ?>
+            <a class="btn btn-warning btn-xs" href="<?php echo route('admin/users/user/unban_chat', $user->id); ?>" onclick="return confirm('Are you sure you want to remove the chat ban from this user?');">Unban</a>
+            <?php endif; ?>
+        </p>
+        <span class="help-block"><?php echo e($user->chat_ban_reason); ?></span>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($user->id != $currentUser->id): ?>
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/users/user/ban', $user->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-users-user-access-ban_until" class="col-sm-2 control-label">Ban Until</label>
+        <div class="col-sm-10">
+            <div class="input-group date">
+                <input type="text" name="ban_until" class="form-control" id="cp-users-user-access-ban_until" value="<?php echo e(Input::old('ban_until')); ?>" required/>
+                <span class="input-group-addon">
+                    <i class="fa fa-calendar"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#cp-users-user-access-ban_until").datetimepicker();
+        });
+    </script>
+
+    <div class="form-group">
+        <label for="cp-users-user-access-reason" class="col-sm-2 control-label">Reason</label>
+        <div class="col-sm-10">
+            <input type="text" name="ban_reason" class="form-control" id="cp-users-user-access-reason" value="<?php echo e(Input::old('ban_reason')); ?>" maxlength="255" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-9">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="chat_ban" id="cp-users-user-access-chatban" value="yes" <?php echo (Input::old('chat_ban') == 'yes') ? 'checked' : ''; ?> /> Chat ban only?
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-9">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="unsocialize" id="cp-users-user-access-unsocialize" value="yes"  <?php echo (Input::old('unsocialize') == 'yes') ? 'checked' : ''; ?> /> Remove social presence?
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <button type="submit" name="ban_user" class="btn btn-danger">Ban</button>
+        </div>
+    </div>
+</form>
+<?php endif; ?>
+
+<hr />
+
+<h2>General Information</h2>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/users/user/edit', $user->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <div class="form-group">
+        <label for="cp-user-id" class="col-sm-2 control-label">ID</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+                <?php echo $user->id; ?> <a href="<?php echo route('user/profile', $user->id); ?>">(Go to Profile)</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-user-displayname" class="col-sm-2 control-label">Display Name</label>
+        <div class="col-sm-10">
+            <input type="text" name="display_name" class="form-control" id="cp-user-displayname" value="<?php echo e(Input::old('display_name', $user->display_name)); ?>" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-users-user-avatar" class="col-sm-2 control-label">Avatar</label>
+        <div class="col-sm-10">
+            <input type="text" name="avatar" class="form-control" id="cp-users-user-avatar" value="<?php echo e(Input::old('avatar', $user->avatar)); ?>" maxlength="255" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-users-user-kennel_name" class="col-sm-2 control-label">Kennel Name</label>
+        <div class="col-sm-10">
+            <input type="text" name="kennel_name" class="form-control" id="cp-users-user-kennel_name" value="<?php echo e(Input::old('kennel_name', $user->kennel_name)); ?>" maxlength="50" required />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-users-user-kennel_prefix" class="col-sm-2 control-label">Kennel Prefix</label>
+        <div class="col-sm-10">
+            <input type="text" name="kennel_prefix" class="form-control" id="cp-users-user-kennel_prefix" value="<?php echo e(Input::old('kennel_prefix', $user->kennel_prefix)); ?>" maxlength="5" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="cp-users-user-kennel_description" class="col-sm-2 control-label">Kennel Description</label>
+        <div class="col-sm-10">
+            <textarea name="kennel_description" class="form-control" id="cp-users-user-kennel_description" rows="10"><?php echo e(Input::old('kennel_description', $user->kennel_description)); ?></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2 text-right">
+            <?php if($user->id != $currentUser->id): ?>
+            <a href="<?php echo route('admin/users/user/delete', $user->id); ?>" name="delete_user" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+            <?php endif; ?>
+            <button type="submit" name="edit_user" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<h2>Kennel Groups</h2>
+
+<?php foreach($kennelGroups as $kennelGroup): ?>
+<div class="well well-sm">
+    <form class="form-horizontal" role="form" method="post" action="<?php echo route('admin/users/kennel_group/update', $kennelGroup->id); ?>">
+        <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+        <div class="form-group">
+            <label for="cp-users-user-kg<?php echo $kennelGroup->id; ?>-id" class="col-sm-2 control-label">ID</label>
+            <div class="col-sm-10">
+                <p class="form-control-static"><?php echo $kennelGroup->id; ?></p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cp-users-user-kg<?php echo $kennelGroup->id; ?>-name" class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+                <?php if($kennelGroup->canBeEdited()): ?>
+                <input type="text" name="name" class="form-control" id="cp-users-user-kg<?php echo $kennelGroup->id; ?>-name" value="<?php echo e($kennelGroup->name); ?>" />
+                <?php else: ?>
+                <p class="form-control-static"><?php echo e($kennelGroup->name); ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cp-users-user-kg<?php echo $kennelGroup->id; ?>-description" class="col-sm-2 control-label">Description</label>
+            <div class="col-sm-10">
+                <?php if($kennelGroup->canBeEdited()): ?>
+                <textarea name="description" class="form-control" id="cp-users-user-kg<?php echo $kennelGroup->id; ?>-description"><?php echo e($kennelGroup->description); ?></textarea>
+                <?php else: ?>
+                <textarea name="description" class="form-control" id="cp-users-user-kg<?php echo $kennelGroup->id; ?>-description" disabled><?php echo e($kennelGroup->description); ?></textarea>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cp-users-user-kg<?php echo $kennelGroup->id; ?>-order" class="col-sm-2 control-label">Order By</label>
+            <div class="col-sm-10">
+                <select name="dog_order" class="form-control" id="cp-users-user-kg<?php echo $kennelGroup->id; ?>-order" required>
+                    <?php foreach(KennelGroup::getDogOrders() as $orderId => $orderName): ?>
+                    <option value="<?php echo $orderId; ?>" <?php echo ($orderId == $kennelGroup->dog_order_id) ? 'selected' : ''; ?>><?php echo $orderName; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2 text-right">
+                <button type="submit" name="edit_kennel_group" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+<?php endforeach; ?>
+
+<?php if($kennelGroups->isEmpty()): ?>
+<div class="well well-sm text-center">
+    <em>No kennel groups to display</em>
+</div>
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

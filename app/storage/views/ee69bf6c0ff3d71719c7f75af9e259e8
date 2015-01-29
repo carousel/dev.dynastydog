@@ -1,0 +1,23 @@
+<?php if(is_null($selectedCharacteristic)): ?>
+<div id="characteristics-select">
+<?php endif; ?>
+	<button type="button" class="btn btn-link characteristics-remove-characteristic">
+	    <span class="text-danger"><i class="fa fa-times-circle"></i></span>
+	</button>
+
+	<label>Select Characteristic:</label>
+
+	<select name="ch[<?php echo $counter; ?>][id]" class="form-control" id="characteristics-select-<?php echo $counter; ?>">
+	    <option value=""></option>
+	    <?php foreach($characteristicCategories as $category): ?>
+	    <optgroup label="<?php echo $category['parent_name']; ?>: <?php echo $category['name']; ?>">
+	        <?php foreach($category['characteristics'] as $characteristic): ?>
+	        <option value="<?php echo $characteristic->id; ?>" <?php echo ( ! is_null($selectedCharacteristic) and $selectedCharacteristic->id == $characteristic->id) ? 'selected' : ''; ?>><?php echo $characteristic->name; ?></option>
+	        <?php endforeach; ?>
+	    </optgroup>
+	    <?php endforeach; ?>
+	</select>
+	<br />
+<?php if(is_null($selectedCharacteristic)): ?>
+</div>
+<?php endif; ?>

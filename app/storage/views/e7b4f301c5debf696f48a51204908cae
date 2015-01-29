@@ -1,0 +1,32 @@
+
+
+<?php /* Breadcrumbs */ ?>
+<?php echo Breadcrumbs::setCurrentRoute('help/page', $page); ?>
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<h1><?php echo e($page->title); ?></h1>
+
+<?php echo $page->content; ?>
+
+
+<?php if($page->categories()->count()): ?>
+<hr />
+
+<p>
+    <strong>Categories:</strong> 
+    <?php foreach($page->categories()->orderBy('title', 'asc')->get() as $category): ?>
+    <span class="label label-default"><?php echo e($category->title); ?></span>
+    <?php endforeach; ?>
+</p>
+<?php endif; ?>
+
+<?php if($currentUser->hasAnyAccess(['admin'])): ?>
+<p class="text-right"><a href="<?php echo route('admin/help/help/page/edit', $page->id); ?>" class="btn btn-primary">Edit</a></p>
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

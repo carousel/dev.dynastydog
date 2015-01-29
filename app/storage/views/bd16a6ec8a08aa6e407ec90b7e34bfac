@@ -1,0 +1,296 @@
+
+
+<?php /* Page content */ ?>
+<?php $__env->startSection('content'); ?>
+
+<div class="page-header">
+    <div class="text-right pull-right">
+        <a href="<?php echo route('breed_registry/draft/form', $breedDraft->id); ?>" class="btn btn-primary">Back to Form</a>
+    </div>
+
+    <h1>Viewing Characteristic: <?php echo $characteristic->name; ?></h1>
+</div>
+
+<h2>Settings</h2>
+
+<?php if($characteristic->isGenetic()): ?>
+<div class="callout callout-info">
+    <p class="text-center">You do not have to fill out both phenotypes and genotypes, although you can. One or the other is fine. Once you save a characteristic, you will see the results of what you've selected show up on the page. Hold <kbd>CTRL</kbd> or <kbd>CMD</kbd> to select more than one, or to deselect options.</p>
+</div>
+<?php endif; ?>
+
+<form class="form-horizontal" role="form" method="post" action="<?php echo route('breed_registry/draft/form/characteristic/save', $breedDraftCharacteristic->id); ?>">
+    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>" />
+
+    <?php if($breedDraft->isOfficial() and $characteristic->isIgnorable()): ?>
+    <div class="form-group">
+        <div class="col-xs-10 col-xs-offset-2">
+            <label>
+                <input type="checkbox" value="yes" name="ignore" <?php echo Input::old('ignore', ($breedDraftCharacteristic->isIgnored() ? 'yes' : 'no') == 'yes' ? 'checked' : ''); ?> />
+                I'm not sure what to put here, so let admins fill this out for me.
+            </label>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if($characteristic->hasPhenotypes()): ?>
+    <div class="form-group">
+        <label for="draft-characteristic-<?php echo $breedDraftCharacteristic->id; ?>-phenotypes" class="col-xs-2 control-label">
+            Phenotypes
+        </label>
+        <div class="col-xs-10">
+            <select name="phenotypes[]" class="form-control input-xs" size="2" multiple>
+                <?php foreach($phenotypes as $phenotype): ?>
+                <option value="<?php echo $phenotype->id; ?>" <?php echo in_array($phenotype->id, $savedPhenotypeIds) ? 'selected' : ''; ?>>
+                    <?php echo $phenotype->name; ?>
+
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if($characteristic->hasGenotypes() and ! $characteristic->hideGenotypes()): ?>
+    <div class="form-group">
+        <label for="draft-characteristic-<?php echo $breedDraftCharacteristic->id; ?>-genotypes" class="col-xs-2 control-label">
+            Genotypes
+        </label>
+        <div class="col-xs-10">
+            <div class="row">
+                <?php foreach($loci as $locus): ?>
+                <div class="col-xs-2 text-center">
+                    <strong><?php echo $locus->name; ?></strong>
+                    <select name="genotypes[<?php echo $locus->id; ?>][]" class="form-control input-xs" size="2" multiple>
+                        <?php foreach($locus->genotypes as $genotype): ?>
+                        <option value="<?php echo $genotype->id; ?>" <?php echo in_array($genotype->id, $savedGenotypeIds) ? 'selected' : ''; ?>>
+                            <?php echo $genotype->toSymbol(); ?>
+
+                        </option>
+                        <?php endforeach; ?>
+                    </select><br />
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if($characteristic->isRanged()): ?>
+    <div class="form-group">
+        <label for="draft-characteristic-<?php echo $breedDraftCharacteristic->id; ?>-range" class="col-xs-2 control-label">
+            Range
+        </label>
+        <div class="col-xs-10">
+            <div class="row">
+                <div class="col-xs-2 text-right">
+                    <p class="form-control-static"><strong>Bitch:</strong></p>
+                </div>
+                <div class="col-xs-10">
+                    <p class="form-control-static">
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_lower_boundary_label; ?>">
+                            <i class="fa fa-step-backward"></i>
+                        </a> 
+
+                        <input name="range_female" id="draft-characteristic-range-female" type="text" value="<?php echo $breedDraftCharacteristic->min_female_ranged_value.','.$breedDraftCharacteristic->max_female_ranged_value; ?>" data-slider-min="<?php echo ceil($characteristic->min_ranged_value); ?>" data-slider-max="<?php echo floor($characteristic->max_ranged_value); ?>"/>
+
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_upper_boundary_label; ?>">
+                            <i class="fa fa-step-forward"></i>
+                        </a>
+                    </p>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="col-xs-2 text-right">
+                    <p class="form-control-static"><strong>Dog:</strong></p>
+                </div>
+                <div class="col-xs-10">
+                    <p class="form-control-static">
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_lower_boundary_label; ?>">
+                            <i class="fa fa-step-backward"></i>
+                        </a> 
+
+                        <input name="range_male" id="draft-characteristic-range-male" type="text" value="<?php echo $breedDraftCharacteristic->min_male_ranged_value.','.$breedDraftCharacteristic->max_male_ranged_value; ?>" data-slider-min="<?php echo ceil($characteristic->min_ranged_value); ?>" data-slider-max="<?php echo floor($characteristic->max_ranged_value); ?>"/>
+
+                        <a class="slider-bounds" data-toggle="tooltip" data-placement="top" title="<?php echo $characteristic->ranged_upper_boundary_label; ?>">
+                            <i class="fa fa-step-forward"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+            $(document).ready(function(){
+                var female = $("#draft-characteristic-range-female");
+                var male = $("#draft-characteristic-range-male");
+
+                if ( ! female.parent().hasClass('slider'))
+                {
+                    female.slider({
+                        step:1,
+                        value:[<?php echo $breedDraftCharacteristic->min_female_ranged_value.','.$breedDraftCharacteristic->max_female_ranged_value; ?>],
+                        formater:function(value){
+                            <?php echo $characteristic->jsFormatRangedSlider(); ?>
+
+                        }
+                    });
+
+                    male.slider({
+                        step:1,
+                        value:[<?php echo $breedDraftCharacteristic->min_male_ranged_value.','.$breedDraftCharacteristic->max_male_ranged_value; ?>],
+                        formater:function(value){
+                            <?php echo $characteristic->jsFormatRangedSlider(); ?>
+
+                        }
+                    });
+                }
+            });
+            </script>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="form-group">
+        <div class="col-xs-10 col-xs-offset-2 text-right">
+            <button type="submit" name="save_draft_characteristic" class="btn btn-success" data-loading-text="<i class='fa fa-cog fa-spin'></i> Saving...">Save</button>
+
+            <?php if( ! $breedDraft->isOfficial()): ?>
+            <a class="btn btn-danger" href="<?php echo route('breed_registry/draft/form/characteristic/remove', $breedDraftCharacteristic->id); ?>" onclick="return confirm('Are you sure you want to remove this characteristic?');" data-loading-text="<i class='fa fa-cog fa-spin'></i> Removing...">Remove</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<h2>Results</h2>
+
+<?php if($characteristic->isType(Characteristic::TYPE_COLOUR)): ?>
+<div class="callout callout-info">
+    <p class="text-center">Markings, like Spotting, Ticking, Roaning, and Urajiro, are allowed by default. If you do not want white markings allowed in this breed, select SS for Spotting, tt for Ticking, and XX for Urajiro. For more specific information, please visit the help pages of those specific genes</p>
+</div>
+<?php endif; ?>
+
+<?php if($characteristic->isGenetic()): ?>
+    <?php if($characteristic->hasPhenotypes()): ?>
+    <div class="row">
+        <div class="col-xs-2 text-right">
+            <strong>Phenotypes</strong>
+        </div>
+        <div class="col-xs-10">
+            <ul>
+                <?php foreach($resultingPhenotypes as $phenotype): ?>
+                <li><?php echo $phenotype->name; ?></li>
+                <?php endforeach; ?>
+            
+                <?php if($resultingPhenotypes->isEmpty()): ?>
+                <li><em>None</em></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if( ! $characteristic->hideGenotypes()): ?>
+    <div class="row">
+        <div class="col-xs-2 text-right">
+            <strong>Genotypes</strong>
+        </div>
+        <div class="col-xs-10">
+            <ul>
+                <?php foreach($resultingLoci as $locus): ?>
+                <li>
+                    <strong><?php echo $locus->name; ?>:</strong>
+                    <?php foreach($locus->genotypes as $genotype): ?>
+                    <?php echo $genotype->toSymbol(); ?>
+
+                    <?php endforeach; ?>
+
+                    <?php if($locus->genotypes->isEmpty()): ?>
+                    <em>None</em>
+                    <?php endif; ?>
+                </li>
+                <?php endforeach; ?>
+            
+                <?php if($resultingLoci->isEmpty()): ?>
+                <li><em>None</em></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <?php endif; ?>
+<?php endif; ?>
+
+<?php if($characteristic->isRanged()): ?>
+<div class="row">
+    <div class="col-xs-2 text-right">
+        <strong>Range</strong>
+    </div>
+    <div class="col-xs-10">
+        <ul>
+            <?php if(Floats::compare($breedDraftCharacteristic->min_female_ranged_value, $breedDraftCharacteristic->min_male_ranged_value, '=') and Floats::compare($breedDraftCharacteristic->max_female_ranged_value, $breedDraftCharacteristic->max_male_ranged_value, '=')): ?>
+                <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                    ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                    ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                    ->orderBy('min_ranged_value', 'asc')
+                    ->orderBy('max_ranged_value', 'asc')
+                    ->get()
+                ) as $label): ?>
+                <li><?php echo $label->name; ?></li>
+                <?php endforeach; ?>
+
+                <?php if($labels->isEmpty()): ?>
+                <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                <?php endif; ?>
+            <?php else: ?>
+                <li>
+                    Bitches
+                    <ul>
+                        <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                            ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_female_ranged_value)
+                            ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_female_ranged_value)
+                            ->orderBy('min_ranged_value', 'asc')
+                            ->orderBy('max_ranged_value', 'asc')
+                            ->get()
+                        ) as $label): ?>
+                        <li><?php echo $label->name; ?></li>
+                        <?php endforeach; ?>
+
+                        <?php if($labels->isEmpty()): ?>
+                        <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_female_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_female_ranged_value, false); ?></li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+                <li>
+                    Dogs
+                    <ul>
+                        <?php foreach(($labels = $breedDraftCharacteristic->characteristic->labels()
+                            ->where('min_ranged_value', '<=', $breedDraftCharacteristic->max_male_ranged_value)
+                            ->where('max_ranged_value', '>=', $breedDraftCharacteristic->min_male_ranged_value)
+                            ->orderBy('min_ranged_value', 'asc')
+                            ->orderBy('max_ranged_value', 'asc')
+                            ->get()
+                        ) as $label): ?>
+                        <li><?php echo $label->name; ?></li>
+                        <?php endforeach; ?>
+
+                        <?php if($labels->isEmpty()): ?>
+                        <li><?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->min_male_ranged_value, false); ?> - <?php echo $breedDraftCharacteristic->formatRangedValue($breedDraftCharacteristic->max_male_ranged_value, false); ?></li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php $__env->stopSection(); ?>
+
+<?php /* JS assets */ ?>
+<?php $__env->startSection('js_assets'); ?>
+@parent
+<script type="text/javascript" src="<?php echo asset('assets/js/breed_registry.js'); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make($layout, array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
